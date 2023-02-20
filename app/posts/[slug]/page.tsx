@@ -27,7 +27,9 @@ const PostPage = ({ params }: PostPageProps) => {
   return (
     <div className="text-dracula-foreground">
       <article className="prose  max-w-none dark:prose-invert md:prose-lg lg:prose-xl">
-        <h1 className="w-full text-dracula-purple">{post.metadata.title}</h1>
+        <h1 className="w-full text-center text-dracula-purple">
+          {post.metadata.title}
+        </h1>
         <p className="text-right text-gray-400">
           {post.metadata.date.toDateString()}
         </p>
