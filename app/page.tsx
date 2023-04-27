@@ -1,7 +1,5 @@
-import React from "react";
-import Link from "next/link";
-import { getPostMetadata } from "@/utils/getPostMetadata";
 import { PostPreview } from "@/components/PostPreview";
+import { getPostMetadata } from "@/utils/getPostMetadata";
 
 const HomePage = () => {
   const postMetadata = getPostMetadata();
@@ -11,7 +9,7 @@ const HomePage = () => {
   ));
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{postPreviews}</div>
+    <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">{postPreviews}</div>
   );
 };
 

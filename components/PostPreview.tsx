@@ -1,5 +1,4 @@
 import Link from "next/link";
-import React from "react";
 
 export const PostPreview = ({
   slug,
@@ -12,9 +11,9 @@ export const PostPreview = ({
 }) => {
   return (
     <Link href={`/posts/${slug}`}>
-      <div className="group rounded-md border p-5 shadow-md dark:border-gray-500 dark:text-dracula-foreground dark:shadow-dracula-current">
-        <h2 className="text-xl font-semibold group-hover:underline">{title}</h2>
-        <p className="text-right  text-sm text-slate-400">
+      <div className="group rounded-md border p-5 shadow-md bg-ctp-mantle border-ctp-surface2">
+        <h2 className="text-xl font-semibold group-hover:text-ctp-mauve text-ctp-text">{title}</h2>
+        <p className="text-right text-sm text-ctp-blue">
           {date.toLocaleDateString()}
         </p>
       </div>
