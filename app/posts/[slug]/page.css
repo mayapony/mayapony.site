@@ -1,0 +1,9 @@
+.callout-tip {
+  background-color: #626880;
+}
+.callout-title {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  color: #e78284;
+}

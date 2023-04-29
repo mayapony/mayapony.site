@@ -11,8 +11,10 @@ export const PostPreview = ({
 }) => {
   return (
     <Link href={`/posts/${slug}`}>
-      <div className="group rounded-md border p-5 shadow-md bg-ctp-mantle border-ctp-surface2">
-        <h2 className="text-xl font-semibold group-hover:text-ctp-mauve text-ctp-text">{title}</h2>
+      <div className="group rounded-md border border-ctp-surface2 bg-ctp-mantle p-5 shadow-md">
+        <h2 className="text-xl font-semibold text-ctp-text group-hover:text-ctp-mauve">
+          {title}
+        </h2>
         <p className="text-right text-sm text-ctp-blue">
           {date.toLocaleDateString()}
         </p>
