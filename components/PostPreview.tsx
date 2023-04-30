@@ -7,16 +7,18 @@ export const PostPreview = ({
 }: {
   slug: string;
   title: string;
-  date: Date;
+  date: string;
 }) => {
+  console.log(date);
+
   return (
     <Link href={`/posts/${slug}`}>
-      <div className="group rounded-md border border-ctp-surface2 bg-ctp-mantle p-5 shadow-md">
+      <div className="group rounded-md bg-ctp-mantle p-5">
         <h2 className="text-xl font-semibold text-ctp-text group-hover:text-ctp-mauve">
           {title}
         </h2>
         <p className="text-right text-sm text-ctp-blue">
-          {date.toLocaleDateString()}
+          {new Date(date).toLocaleDateString()}
         </p>
       </div>
     </Link>

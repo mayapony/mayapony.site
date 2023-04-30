@@ -1,4 +1,4 @@
 export interface PostMetadata {
   title: string;
-  date: Date;
+  date: string;
 }

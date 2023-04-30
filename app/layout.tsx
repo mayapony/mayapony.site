@@ -12,18 +12,16 @@ export default function RootLayout({
     <header className="my-6  rounded-lg bg-ctp-crust p-5">
       <div className="text-center">
         <Link href="/">
-          <h1 className="text-3xl font-bold text-ctp-text">
-            maya&apos;s blog
-          </h1>
+          <h1 className="text-3xl font-bold text-ctp-text">maya&apos;s blog</h1>
         </Link>
-        <p className="font-bold text-ctp-mauve m-2">️🔥 Welcome to my blog. </p>
+        <p className="m-2 font-bold text-ctp-mauve">️🔥 Welcome to my blog. </p>
       </div>
     </header>
   );
 
   const footer = (
     <footer>
-      <div className="my-10  border-t-2  border-ctp-overlay2 text-center text-ctp-subtext1">
+      <div className="my-10 text-right text-ctp-surface2">
         <h3>Designed by maya</h3>
       </div>
     </footer>
@@ -32,7 +30,7 @@ export default function RootLayout({
   return (
     <html>
       <head />
-      <body className={"bg-ctp-base h-full px-4"}>
+      <body className={"h-full bg-ctp-base px-4"}>
         <div className="mx-auto max-w-4xl">
           {header}
           {children}

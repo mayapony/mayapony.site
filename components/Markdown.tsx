@@ -2,20 +2,29 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
-import { dracula } from "react-syntax-highlighter/dist/esm/styles/prism";
+import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import remarkObsidianCallout from "remark-obsidian-callout";
 import remarkFlexibleMarkers from "remark-flexible-markers";
+import remarkParse from "remark-parse";
 
 type MarkdownPropsType = {
   content: string;
 };
 
 export const Markdown = ({ content }: MarkdownPropsType) => {
+  oneLight['code[class*="language-"]'].background = "#dce0e8";
+  oneLight['pre[class*="language-"]'].background = "#dce0e8";
+
   return (
     <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkObsidianCallout, remarkFlexibleMarkers]}
+      remarkPlugins={[
+        remarkParse,
+        remarkGfm,
+        remarkObsidianCallout,
+        remarkFlexibleMarkers,
+      ]}
       rehypePlugins={[rehypeRaw]}
       components={{
         code({ node, inline, className, children, ...props }) {
@@ -23,7 +32,7 @@ export const Markdown = ({ content }: MarkdownPropsType) => {
           return !inline && match ? (
             <SyntaxHighlighter
               {...props}
-              style={dracula}
+              style={oneLight}
               language={match[1]}
               PreTag="div"
             >

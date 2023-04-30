@@ -14,7 +14,7 @@ Functions are the basic building block of any application, whether they’re loc
 ## Function Type Expressions
 -------------------------------------------------------
 
-==The simplest way to describe a function is with a _function type expression_==. These types are syntactically similar to arrow functions:
+== The simplest way to describe a function is with a function type expression ==. These types are syntactically similar to arrow functions:
 
 ```ts
 function greeter(fn: (a: string) => void) {
@@ -29,7 +29,7 @@ greeter(printToConsole);
 
 The syntax `(a: string) => void` means “a function with one parameter, named `a`, of type string, that doesn’t have a return value”. Just like with function declarations, if a parameter type isn’t specified, it’s implicitly `any`.
 
-> ==Note that the parameter name is **required**.== The function type `(string) => void` means “a function with a parameter named `string` of type `any`“!
+> ==Note that the parameter name is required.== The function type `(string) => void` means “a function with a parameter named `string` of type `any`“!
 
 Of course, we can use a type alias to name a function type:
 
@@ -59,7 +59,7 @@ myFunc.description = "default description";
 doSomething(myFunc);
 ```
 
-==Note that the syntax is slightly different compared to a function type expression - use `:` between the parameter list and the return type rather than `=>`.==
+== Note that the syntax is slightly different compared to a function type expression - use : between the parameter list and the return type rather than =>. ==
 
 ## Construct Signatures
 ---------------------------------------------
@@ -138,12 +138,12 @@ Note that in this example, TypeScript could infer both the type of the `Input` t
 
 We’ve written some generic functions that can work on _any_ kind of value. Sometimes we want to relate two values, but can only operate on a certain subset of values. In this case, we can use a _constraint_ to limit the kinds of types that a type parameter can accept.
 
-> [!NOTE] NOTE
+> [!note] NOTE
 > 有时候我们对泛型的类型进行限制，在这种情况下需要使用 _constraint_
 
 Let’s write a function that returns the longer of two values. To do this, we need a `length` property that’s a number. We _constrain_ the type parameter to that type by writing an `extends` clause:
 
-> [!NOTE] NOTE
+> [!note] NOTE
 > 例如下面这个例子，只接受含有length属性的类型
 
 ```ts

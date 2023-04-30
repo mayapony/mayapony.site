@@ -1,0 +1,13 @@
+.callout-title {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.callout-note .callout-title {
+  color: #1e66f5;
+}
+
+.callout-tip .callout-title {
+  color: #d20f39;
+}
