@@ -4,6 +4,7 @@ import { getPostMetadata } from "@/utils/getPostMetadata";
 import fs from "fs";
 import matter from "gray-matter";
 import "@/styles/page.css";
+import { CommentWidget } from "@/components/CommentWidget";
 
 // import Markdown from "markdown-to-jsx";
 
@@ -38,6 +39,7 @@ const PostPage = ({ params }: PostPageProps) => {
         </p>
         <Markdown content={post.content} />
       </article>
+      <CommentWidget />
     </div>
   );
 };
