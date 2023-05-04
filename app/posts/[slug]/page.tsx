@@ -3,7 +3,7 @@ import { PostMetadata } from "@/interfaces/PostMetadata";
 import { getPostMetadata } from "@/utils/getPostMetadata";
 import fs from "fs";
 import matter from "gray-matter";
-import "@/styles/page.css";
+import "@/styles/page.scss";
 import { CommentWidget } from "@/components/CommentWidget";
 // https://github.com/shuding/react-wrap-balancer
 import Balancer from "react-wrap-balancer";

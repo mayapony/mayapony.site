@@ -11,3 +11,8 @@
 .callout-tip .callout-title {
   color: #d20f39;
 }
+
+.flexible-marker::after {
+  content: "👈";
+  float: right;
+}

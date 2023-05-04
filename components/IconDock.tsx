@@ -44,7 +44,7 @@ function AppIcon({
     (val) => val - bounds.left - bounds.width / 2
   );
 
-  let widthSync = useTransform(distance, [-200, 0, 200], [30, 50, 30]);
+  let widthSync = useTransform(distance, [-150, 0, 150], [30, 50, 30]);
   let width = useSpring(widthSync, {
     mass: 0.1,
     stiffness: 150,

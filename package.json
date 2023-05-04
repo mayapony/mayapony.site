@@ -27,6 +27,7 @@
     "rehype-raw": "^6.1.1",
     "remark-flexible-markers": "^1.0.2",
     "remark-gfm": "^3.0.1",
+    "sass": "^1.62.1",
     "typescript": "4.9.5"
   },
   "devDependencies": {
