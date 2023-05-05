@@ -1,6 +1,6 @@
 ---
 title: "[阅读记录]Typescript Function"
-date: 2022-04-28T00:12:25+08:00
+created: 2022-04-28T00:12:25+08:00
 draft: false
 tags: ["阅读记录"]
 ---

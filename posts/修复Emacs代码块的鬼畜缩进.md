@@ -1,6 +1,6 @@
 ---
 title: "修复Emacs代码块的鬼畜缩进"
-date: 2022-03-15T00:00:25+08:00
+created: 2022-03-15T00:00:25+08:00
 draft: false
 tags: ["踩坑记录", "Emacs", "Org-mode"]
 ---

@@ -4,7 +4,7 @@ aliases:
   - "Optional Properties"
 tags:
   - "阅读记录"
-date: "2023-04-29"
+created: "2023-04-29"
 draft: "false"
 title: "[阅读记录]Object Types"
 ---

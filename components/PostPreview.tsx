@@ -3,13 +3,13 @@ import Link from "next/link";
 export const PostPreview = ({
   slug,
   title,
-  date,
+  created,
 }: {
   slug: string;
   title: string;
-  date: string;
+  created: string;
 }) => {
-  console.log(date);
+  console.log(created);
 
   return (
     <Link href={`/posts/${slug}`}>
@@ -18,7 +18,7 @@ export const PostPreview = ({
           {title}
         </h2>
         <p className="text-right text-sm text-ctp-blue">
-          {new Date(date).toLocaleDateString()}
+          {new Date(created).toLocaleDateString()}
         </p>
       </div>
     </Link>

@@ -4,6 +4,12 @@ import { getPostMetadata } from "@/utils/getPostMetadata";
 const HomePage = () => {
   const postMetadata = getPostMetadata();
 
+  postMetadata.sort((postA, postB) => {
+    const postADateTime = new Date(postA.created).getTime();
+    const postBDateTime = new Date(postB.created).getTime();
+    return postBDateTime - postADateTime;
+  });
+
   const postPreviews = postMetadata.map((post) => (
     <PostPreview key={post.slug} {...post} />
   ));

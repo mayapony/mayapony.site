@@ -1,10 +1,3 @@
-@font-face {
-  font-family: "iconfont"; /* Project id 4046711 */
-  src: url('/icons/iconfont.woff2?t=1683014947691') format('woff2'),
-       url('/icons/iconfont.woff?t=1683014947691') format('woff'),
-       url('/icons/iconfont.ttf?t=1683014947691') format('truetype');
-}
-
 .iconfont {
   font-family: "iconfont" !important;
   font-style: normal;
