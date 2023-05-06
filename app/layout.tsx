@@ -1,8 +1,7 @@
 "use client";
 import { LayoutHeader } from "@/components/LayoutHeader";
-import Link from "next/link";
-import { useState } from "react";
 import "../styles/globals.css";
+import Head from "./head";
 
 export default function RootLayout({
   children,
@@ -19,8 +18,8 @@ export default function RootLayout({
 
   return (
     <html>
-      <head />
-      <body className={"h-full bg-ctp-base px-4"}>
+      <Head />
+      <body className="h-full bg-ctp-base px-4">
         <div className="mx-auto max-w-4xl">
           <LayoutHeader />
           {children}

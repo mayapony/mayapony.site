@@ -1,0 +1,27 @@
+.iconfont {
+  font-family: var(--font-icon) !important;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-QQ:before {
+  content: "\e882";
+}
+
+.icon-github-fill:before {
+  content: "\e885";
+}
+
+.icon-twitter-circle-fill:before {
+  content: "\e88a";
+}
+
+.icon-reddit-circle-fill:before {
+  content: "\e88b";
+}
+
+.icon-bilibili-fill:before {
+  content: "\e75c";
+}
+

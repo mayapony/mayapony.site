@@ -9,7 +9,25 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import useMeasure from "react-use-measure";
-import "../public/icons/iconfont.css";
+import "../styles/icon-dock.scss";
+
+import localFont from "@next/font/local";
+
+const iconFont = localFont({
+  display: "swap",
+  src: [
+    {
+      path: "../public/icons/iconfont.ttf",
+    },
+    {
+      path: "../public/icons/iconfont.woff",
+    },
+    {
+      path: "../public/icons/iconfont.woff2",
+    },
+  ],
+  variable: "--font-icon",
+});
 
 export const IconDock = () => {
   let mouseX = useMotionValue(Infinity);
@@ -18,7 +36,7 @@ export const IconDock = () => {
     <motion.div
       onMouseMove={(e) => mouseX.set(e.pageX)}
       onMouseLeave={() => mouseX.set(Infinity)}
-      className="mx-auto flex h-8 w-max items-end gap-2 rounded-2xl px-4"
+      className={`mx-auto flex h-8 w-max items-end gap-2 rounded-2xl px-4 ${iconFont.className}`}
     >
       <Link href="https://github.com/mayapony">
         <AppIcon mouseX={mouseX} iconName="icon-github-fill" />
