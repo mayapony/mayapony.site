@@ -7,6 +7,7 @@ import "@/styles/post-page.scss";
 import { CommentWidget } from "@/components/CommentWidget";
 // https://github.com/shuding/react-wrap-balancer
 import Balancer from "react-wrap-balancer";
+import { readingTime } from "reading-time-estimator";
 
 type PostPageProps = {
   params: {
@@ -18,10 +19,12 @@ const getPostContent = (slug: string) => {
   const filePath = `posts/${decodeURI(slug)}.md`;
   const fileContent = fs.readFileSync(filePath, "utf-8");
   const { data, content } = matter(fileContent);
+  const postReadingTime = readingTime(content, 300);
 
   return {
-    content: content,
+    content,
     metadata: data as PostMetadata,
+    postReadingTime,
   };
 };
 
@@ -35,7 +38,9 @@ const PostPage = ({ params }: PostPageProps) => {
           <Balancer>{post.metadata.title}</Balancer>
         </h1>
         <p className="text-right text-ctp-flamingo">
-          {new Date(post.metadata.created).toLocaleDateString()}
+          {`${new Date(post.metadata.created).toLocaleDateString()}·${
+            post.postReadingTime.text
+          }`}
         </p>
         <Markdown content={post.content} />
       </article>

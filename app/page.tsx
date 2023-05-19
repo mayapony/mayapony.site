@@ -1,8 +1,10 @@
 import { PostPreview } from "@/components/PostPreview";
 import { getPostMetadata } from "@/utils/getPostMetadata";
+import { getReadingTime } from "@/utils/getReadingTime";
 
 const HomePage = () => {
   const postMetadata = getPostMetadata();
+  console.log(postMetadata);
 
   postMetadata.sort((postA, postB) => {
     const postADateTime = new Date(postA.created).getTime();
@@ -10,9 +12,16 @@ const HomePage = () => {
     return postBDateTime - postADateTime;
   });
 
-  const postPreviews = postMetadata.map((post) => (
-    <PostPreview key={post.slug} {...post} />
-  ));
+  const postPreviews = postMetadata.map((post) => {
+    const postReadingTime = getReadingTime(post.slug);
+    return (
+      <PostPreview
+        key={post.slug}
+        {...post}
+        postReadingTime={postReadingTime}
+      />
+    );
+  });
 
   return (
     <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">{postPreviews}</div>

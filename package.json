@@ -24,6 +24,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "react-use-measure": "^2.1.1",
     "react-wrap-balancer": "^0.4.1",
+    "reading-time-estimator": "^1.8.1",
     "rehype-raw": "^6.1.1",
     "remark-flexible-markers": "^1.0.2",
     "remark-gfm": "^3.0.1",

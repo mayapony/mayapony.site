@@ -3168,6 +3168,11 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
+reading-time-estimator@^1.8.1:
+  version "1.8.1"
+  resolved "https://registry.npmmirror.com/reading-time-estimator/-/reading-time-estimator-1.8.1.tgz#ca6caaf05828f4fa277c4e0b325abcb90209035c"
+  integrity sha512-uE95PZDOPVfLsnI/D08s3/heS+s9SgkQwtOH8TtAEsF28qfvnPI8J58iW7XW1OOgw5UAjAZEUr+PLrkTJmvGyg==
+
 refractor@^3.6.0:
   version "3.6.0"
   resolved "https://registry.npmmirror.com/refractor/-/refractor-3.6.0.tgz#ac318f5a0715ead790fcfb0c71f4dd83d977935a"
