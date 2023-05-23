@@ -17,9 +17,9 @@ export const PostPreview = ({
         <h2 className="text-xl font-semibold text-ctp-text group-hover:text-ctp-mauve">
           {title}
         </h2>
-        <div className="flex w-full items-center justify-between">
+        <div className="mt-2 flex w-full items-center justify-between">
           <p className="w-max text-sm text-ctp-blue">
-            {new Date(created).toLocaleDateString()}
+            {new Date(created).toLocaleDateString("zh-CN")}
           </p>
           <p className="w-max text-sm text-ctp-blue">{postReadingTime}</p>
         </div>

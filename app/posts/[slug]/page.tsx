@@ -38,7 +38,7 @@ const PostPage = ({ params }: PostPageProps) => {
           <Balancer>{post.metadata.title}</Balancer>
         </h1>
         <p className="text-right text-ctp-flamingo">
-          {`${new Date(post.metadata.created).toLocaleDateString()}·${
+          {`${new Date(post.metadata.created).toLocaleDateString("zh-CN")} · ${
             post.postReadingTime.text
           }`}
         </p>

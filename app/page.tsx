@@ -4,7 +4,6 @@ import { getReadingTime } from "@/utils/getReadingTime";
 
 const HomePage = () => {
   const postMetadata = getPostMetadata();
-  console.log(postMetadata);
 
   postMetadata.sort((postA, postB) => {
     const postADateTime = new Date(postA.created).getTime();
