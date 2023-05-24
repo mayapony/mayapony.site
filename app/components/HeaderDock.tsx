@@ -9,27 +9,21 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import useMeasure from "react-use-measure";
-import "../styles/icon-dock.scss";
+import "../asserts/icon-dock.scss";
 
 import localFont from "@next/font/local";
 
 const iconFont = localFont({
   display: "swap",
   src: [
-    {
-      path: "../public/icons/iconfont.ttf",
-    },
-    {
-      path: "../public/icons/iconfont.woff",
-    },
-    {
-      path: "../public/icons/iconfont.woff2",
-    },
+    { path: "../asserts/iconfont.ttf" },
+    { path: "../asserts/iconfont.woff" },
+    { path: "../asserts/iconfont.woff2" },
   ],
   variable: "--font-icon",
 });
 
-export const IconDock = () => {
+export const HeaderDock = () => {
   let mouseX = useMotionValue(Infinity);
 
   return (

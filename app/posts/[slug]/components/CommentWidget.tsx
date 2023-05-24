@@ -1,5 +1,4 @@
 "use client";
-import React, { useEffect } from "react";
 import Giscus from "@giscus/react";
 
 export const CommentWidget = () => {

@@ -1,4 +1,4 @@
-import { PostPreview } from "@/components/PostPreview";
+import { PostPreview } from "@/app/posts/[slug]/components/PostPreview";
 import { getPostMetadata } from "@/utils/getPostMetadata";
 import { getReadingTime } from "@/utils/getReadingTime";
 

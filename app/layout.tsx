@@ -1,7 +1,7 @@
 "use client";
-import { LayoutHeader } from "@/components/LayoutHeader";
-import "../styles/globals.css";
-import Head from "./head";
+import "./asserts/globals.css";
+import Head from "./components/Head";
+import { Header } from "./components/Header";
 
 export default function RootLayout({
   children,
@@ -21,7 +21,7 @@ export default function RootLayout({
       <Head />
       <body className="h-full bg-ctp-base px-4">
         <div className="mx-auto max-w-4xl">
-          <LayoutHeader />
+          <Header />
           {children}
           {footer}
         </div>
