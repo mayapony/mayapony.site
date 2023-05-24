@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import { Markdown } from "./components/Markdown";
 import "./styles/post-page.scss";
 // https://github.com/shuding/react-wrap-balancer
+import { getPostMetadata } from "@/utils/getPostMetadata";
 import Balancer from "react-wrap-balancer";
 import { readingTime } from "reading-time-estimator";
 
@@ -42,6 +43,14 @@ const PostPage = ({ params }: PostPageProps) => {
       <Markdown content={post.content} />
     </article>
   );
+};
+
+export const generateStaticParams = async () => {
+  const posts = getPostMetadata();
+  console.log(posts);
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
 };
 
 export default PostPage;

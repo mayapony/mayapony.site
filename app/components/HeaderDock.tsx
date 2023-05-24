@@ -11,7 +11,7 @@ import Link from "next/link";
 import useMeasure from "react-use-measure";
 import "../asserts/icon-dock.scss";
 
-import localFont from "@next/font/local";
+import localFont from "next/font/local";
 
 const iconFont = localFont({
   display: "swap",

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { HeaderDock } from "./HeaderDock";
 
-const lilitaOne = Lilita_One({ subsets: ["latin"], weight: "400" });
+const lilitaOne = Lilita_One({ subsets: ["latin"], weight: ["400"] });
 
 export const Header = () => {
   return (
@@ -20,7 +20,9 @@ export const Header = () => {
           </h1>
           <HeaderIcon />
         </Link>
-        <div className="m-2 mx-auto grid w-max grid-cols-3 gap-2 text-lg font-bold text-ctp-mauve">
+        <div
+          className={`m-2 mx-auto grid w-max grid-cols-3 gap-2 text-lg text-ctp-mauve ${lilitaOne.className}`}
+        >
           <Link href="/posts">Posts</Link>
           <Link href="/about">About</Link>
           <Link href="/concat">Concat</Link>
