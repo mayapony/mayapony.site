@@ -8,7 +8,7 @@ const montserrat = Montserrat({ weight: ["400", "500"], subsets: ["latin"] });
 const PostsListPage = () => {
   return (
     <div>
-      <h2 className={`${montserrat.className} my-10 text-4xl font-bold`}>
+      <h2 className={`${montserrat.className} mt-10 text-4xl font-bold`}>
         Blogs
       </h2>
       <div>
@@ -17,9 +17,11 @@ const PostsListPage = () => {
             <Link
               href={`/posts/${metaData.slug}`}
               key={metaData.slug}
-              className="my-4 flex columns-2 flex-row items-center gap-4 text-2xl text-ctp-text hover:text-ctp-flamingo"
+              className="my-4 flex flex-col text-ctp-text"
             >
-              <h3 className="font-semibold">{metaData.title}</h3>
+              <p className="my-2 w-full text-2xl font-semibold hover:text-ctp-flamingo">
+                {metaData.title}
+              </p>
               <p className="text-lg text-gray-500/90">
                 {new Date(metaData.created).toLocaleDateString("zh-CN")}
               </p>

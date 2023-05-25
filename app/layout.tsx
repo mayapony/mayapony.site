@@ -1,6 +1,19 @@
-"use client";
+import { Metadata } from "next";
 import "./asserts/globals.css";
 import { Header } from "./components/Header";
+
+export const metadata: Metadata = {
+  title: "mayapony",
+  generator: "Next.js",
+  applicationName: "mayapony.site",
+  referrer: "origin-when-cross-origin",
+  keywords: ["Next.js", "React", "Javascript", "Student"],
+  authors: {
+    name: "mayapony",
+    url: "https://github.com/mayapony",
+  },
+  colorScheme: "light",
+};
 
 const footer = (
   <footer>
@@ -17,7 +30,6 @@ export default function RootLayout({
 }) {
   return (
     <html>
-      <title>mayapony</title>
       <meta content="width=device-width, initial-scale=1" name="viewport" />
       <link rel="icon" href="/favicon.ico" />
       <body className="h-full min-h-screen bg-ctp-base">

@@ -30,10 +30,16 @@ const PostPage = ({ params }: PostPageProps) => {
 
 export const generateStaticParams = async () => {
   const posts = getPostMetadata();
-  console.log(posts);
   return posts.map((post) => ({
     slug: post.slug,
   }));
+};
+
+export const generateMetadata = async ({ params }: PostPageProps) => {
+  const post = getPostContent(params.slug);
+  return {
+    title: post.metadata.title,
+  };
 };
 
 export default PostPage;
