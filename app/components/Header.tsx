@@ -21,8 +21,9 @@ export const Header = () => {
           <HeaderIcon />
         </Link>
         <div
-          className={`m-2 mx-auto grid w-max grid-cols-3 gap-2 text-lg text-ctp-mauve ${lilitaOne.className}`}
+          className={`m-2 mx-auto grid w-max grid-cols-4 gap-2 text-lg text-ctp-mauve ${lilitaOne.className}`}
         >
+          <Link href="/">Home</Link>
           <Link href="/posts">Posts</Link>
           <Link href="/about">About</Link>
           <Link href="/concat">Concat</Link>

@@ -11,7 +11,7 @@ export default function PostLayout({
   return (
     <React.Fragment>
       {children}
-      <br />
+      <hr className="my-10" />
       <CommentWidget />
     </React.Fragment>
   );
