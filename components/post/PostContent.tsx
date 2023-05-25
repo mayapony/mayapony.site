@@ -1,19 +1,18 @@
 "use client";
-import React from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight } from "react-syntax-highlighter/dist/esm/styles/prism";
-import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
-import remarkObsidianCallout from "remark-obsidian-callout";
 import remarkFlexibleMarkers from "remark-flexible-markers";
+import remarkGfm from "remark-gfm";
+import remarkObsidianCallout from "remark-obsidian-callout";
 import remarkParse from "remark-parse";
 
 type MarkdownPropsType = {
   content: string;
 };
 
-export const Markdown = ({ content }: MarkdownPropsType) => {
+export const PostContent = ({ content }: MarkdownPropsType) => {
   oneLight['code[class*="language-"]'].background = "#dce0e8";
   oneLight['pre[class*="language-"]'].background = "#dce0e8";
 

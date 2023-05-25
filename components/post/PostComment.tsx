@@ -1,7 +1,7 @@
 "use client";
 import Giscus from "@giscus/react";
 
-export const CommentWidget = () => {
+export const PostComment = () => {
   return (
     <Giscus
       id="comments"

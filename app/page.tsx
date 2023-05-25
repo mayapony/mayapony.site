@@ -1,6 +1,5 @@
-import { PostPreview } from "@/app/posts/[slug]/components/PostPreview";
-import { getPostMetadata } from "@/utils/getPostMetadata";
-import { getReadingTime } from "@/utils/getReadingTime";
+import { PostInfoWidget } from "@/components/post/PostInfoWidget";
+import { getPostMetadata, getReadingTime } from "@/utils/post";
 import { Montserrat } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,10 +18,10 @@ const HomePage = () => {
 
   postMetadata = postMetadata.slice(0, 8);
 
-  const postPreviews = postMetadata.map((post) => {
+  const postInfoWidgets = postMetadata.map((post) => {
     const postReadingTime = getReadingTime(post.slug);
     return (
-      <PostPreview
+      <PostInfoWidget
         key={post.slug}
         {...post}
         postReadingTime={postReadingTime}
@@ -42,7 +41,7 @@ const HomePage = () => {
       </div>
 
       <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">
-        {postPreviews}
+        {postInfoWidgets}
       </div>
     </React.Fragment>
   );

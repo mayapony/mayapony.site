@@ -9,7 +9,7 @@ const lilitaOne = Lilita_One({ subsets: ["latin"], weight: ["400"] });
 
 export const Header = () => {
   return (
-    <header className="my-6 rounded-lg bg-ctp-crust py-4">
+    <header className="mb-10 rounded-lg bg-ctp-crust pt-4 pb-6">
       <div className="text-center">
         <Link
           href="/"
@@ -21,7 +21,7 @@ export const Header = () => {
           <HeaderIcon />
         </Link>
         <div
-          className={`m-2 mx-auto grid w-max grid-cols-4 gap-2 text-lg text-ctp-mauve ${lilitaOne.className}`}
+          className={`m-2 mx-auto grid w-max grid-cols-4 gap-2 text-lg text-ctp-flamingo ${lilitaOne.className}`}
         >
           <Link href="/">Home</Link>
           <Link href="/posts">Posts</Link>
@@ -47,7 +47,7 @@ const HeaderIcon = () => {
 
   return (
     <motion.div className="text-3xl" animate={{ rotate: rotate }}>
-      🥳
+      🌸
     </motion.div>
   );
 };

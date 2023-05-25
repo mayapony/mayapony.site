@@ -1,26 +1,27 @@
 "use client";
 import "./asserts/globals.css";
-import Head from "./components/Head";
 import { Header } from "./components/Header";
+
+const footer = (
+  <footer>
+    <div className="my-10 text-right text-ctp-surface2">
+      <h3>Designed by maya.🌸</h3>
+    </div>
+  </footer>
+);
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const footer = (
-    <footer>
-      <div className="my-10 text-right text-ctp-surface2">
-        <h3>Designed by maya.🌸</h3>
-      </div>
-    </footer>
-  );
-
   return (
     <html>
-      <Head />
-      <body className="h-full bg-ctp-base px-4">
-        <div className="mx-auto max-w-4xl">
+      <title>mayapony</title>
+      <meta content="width=device-width, initial-scale=1" name="viewport" />
+      <link rel="icon" href="/favicon.ico" />
+      <body className="h-full min-h-screen bg-ctp-base">
+        <div className="mx-auto max-w-5xl py-6 px-5">
           <Header />
           {children}
           {footer}

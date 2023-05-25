@@ -1,7 +1,7 @@
 "use client";
 
+import { PostComment } from "@/components/post/PostComment";
 import React from "react";
-import { CommentWidget } from "./components/CommentWidget";
 
 export default function PostLayout({
   children,
@@ -12,7 +12,7 @@ export default function PostLayout({
     <React.Fragment>
       {children}
       <hr className="my-10" />
-      <CommentWidget />
+      <PostComment />
     </React.Fragment>
   );
 }

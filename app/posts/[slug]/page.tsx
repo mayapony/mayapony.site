@@ -1,29 +1,12 @@
-import { PostMetadata } from "@/interfaces/PostMetadata";
-import fs from "fs";
-import matter from "gray-matter";
-import { Markdown } from "./components/Markdown";
-import "./styles/post-page.scss";
+import "@/styles/post/markdown.scss";
 // https://github.com/shuding/react-wrap-balancer
-import { getPostMetadata } from "@/utils/getPostMetadata";
+import { PostContent } from "@/components/post/PostContent";
+import { getPostContent, getPostMetadata } from "@/utils/post";
 import Balancer from "react-wrap-balancer";
-import { readingTime } from "reading-time-estimator";
 
 type PostPageProps = {
   params: {
     slug: string;
-  };
-};
-
-const getPostContent = (slug: string) => {
-  const filePath = `posts/${decodeURI(slug)}.md`;
-  const fileContent = fs.readFileSync(filePath, "utf-8");
-  const { data, content } = matter(fileContent);
-  const postReadingTime = readingTime(content, 300);
-
-  return {
-    content,
-    metadata: data as PostMetadata,
-    postReadingTime,
   };
 };
 
@@ -40,7 +23,7 @@ const PostPage = ({ params }: PostPageProps) => {
           post.postReadingTime.text
         }`}
       </p>
-      <Markdown content={post.content} />
+      <PostContent content={post.content} />
     </article>
   );
 };
