@@ -9,7 +9,7 @@ const lilitaOne = Lilita_One({ subsets: ["latin"], weight: ["400"] });
 
 export const Header = () => {
   return (
-    <header className="mb-10 rounded-lg bg-ctp-crust pt-4 pb-6">
+    <header className="mb-16 rounded-lg bg-ctp-crust pt-4 pb-6">
       <div className="text-center">
         <Link
           href="/"
@@ -25,8 +25,8 @@ export const Header = () => {
         >
           <Link href="/">Home</Link>
           <Link href="/posts">Posts</Link>
+          <Link href="/demos">Demos</Link>
           <Link href="/about">About</Link>
-          <Link href="/concat">Concat</Link>
         </div>
         <HeaderDock />
       </div>

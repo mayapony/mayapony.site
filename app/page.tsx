@@ -32,7 +32,7 @@ const HomePage = () => {
   return (
     <React.Fragment>
       <div
-        className={`${montserrat.className} mt-10 mb-5 flex items-center justify-between pr-5`}
+        className={`${montserrat.className} mb-5 flex items-center justify-between pr-5`}
       >
         <h2 className={`text-3xl font-bold text-ctp-text`}>Recent</h2>
         <Link href="/posts">

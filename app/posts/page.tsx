@@ -8,7 +8,7 @@ const montserrat = Montserrat({ weight: ["400", "500"], subsets: ["latin"] });
 const PostsListPage = () => {
   return (
     <div>
-      <h2 className={`${montserrat.className} mt-10 text-4xl font-bold`}>
+      <h2 className={`${montserrat.className} mb-5 text-4xl font-bold`}>
         Blogs
       </h2>
       <div>
