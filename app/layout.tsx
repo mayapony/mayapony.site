@@ -1,3 +1,4 @@
+import { Footer } from "@/components/root/footer";
 import { Metadata } from "next";
 import "./asserts/globals.css";
 import { Header } from "./components/Header";
@@ -15,14 +16,6 @@ export const metadata: Metadata = {
   colorScheme: "light",
 };
 
-const footer = (
-  <footer>
-    <div className="my-10 text-right text-ctp-surface2">
-      <h3>Designed by maya.🌸</h3>
-    </div>
-  </footer>
-);
-
 export default function RootLayout({
   children,
 }: {
@@ -36,7 +29,7 @@ export default function RootLayout({
         <div className="mx-auto flex min-h-screen max-w-5xl flex-col py-6 px-5">
           <Header />
           <div className="grow">{children}</div>
-          {footer}
+          <Footer />
         </div>
       </body>
     </html>

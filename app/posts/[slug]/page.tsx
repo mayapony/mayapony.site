@@ -12,7 +12,6 @@ type PostPageProps = {
 
 const PostPage = ({ params }: PostPageProps) => {
   const post = getPostContent(params.slug);
-
   return (
     <article className="prose max-w-none text-ctp-text sm:prose-sm lg:prose-lg prose-p:text-ctp-text prose-blockquote:border-l-4 prose-blockquote:border-ctp-crust prose-strong:text-ctp-yellow prose-code:text-ctp-text prose-pre:bg-ctp-crust">
       <h1 className="w-full text-center text-ctp-pink">

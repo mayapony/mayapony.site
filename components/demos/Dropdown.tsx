@@ -3,29 +3,16 @@
 import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { PostContent } from "../post/PostContent";
 
 export const Dropdown = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const [isDropdownMenuOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    const dropdownCurrent = dropdownRef.current;
-    if (!dropdownCurrent) throw "dropdownRef is null or undefined";
-
-    // get dropdown's width and height
-    console.log(dropdownCurrent.getBoundingClientRect());
-
-    // set dropdown's height equal width
-    dropdownCurrent.style.height = `${
-      dropdownCurrent?.getBoundingClientRect().width
-    }px`;
-  });
-
   return (
     <div
-      className="flex w-full flex-col items-center rounded-md bg-ctp-crust pt-10 sm:w-1/2 md:w-1/3"
+      className="flex h-72 w-full min-w-[300px] flex-col items-center rounded-md bg-ctp-crust pt-10 sm:w-1/2 md:w-1/3"
       ref={dropdownRef}
     >
       <DropdownMenu.Root
