@@ -1,6 +1,7 @@
 "use client";
 
 import { PostComment } from "@/components/post/PostComment";
+import { ProgressBar } from "@/components/post/ProgressBar";
 import React from "react";
 
 export default function PostLayout({
@@ -10,6 +11,7 @@ export default function PostLayout({
 }) {
   return (
     <React.Fragment>
+      <ProgressBar />
       {children}
       <hr className="my-10" />
       <PostComment />

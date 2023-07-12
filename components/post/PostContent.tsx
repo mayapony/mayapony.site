@@ -6,7 +6,6 @@ import rehypeRaw from "rehype-raw";
 import remarkFlexibleMarkers from "remark-flexible-markers";
 import remarkGfm from "remark-gfm";
 import remarkObsidianCallout from "remark-obsidian-callout";
-import remarkParse from "remark-parse";
 
 type MarkdownPropsType = {
   content: string;
@@ -18,12 +17,7 @@ export const PostContent = ({ content }: MarkdownPropsType) => {
 
   return (
     <ReactMarkdown
-      remarkPlugins={[
-        remarkParse,
-        remarkGfm,
-        remarkObsidianCallout,
-        remarkFlexibleMarkers,
-      ]}
+      remarkPlugins={[remarkGfm, remarkObsidianCallout, remarkFlexibleMarkers]}
       rehypePlugins={[rehypeRaw]}
       components={{
         code({ node, inline, className, children, ...props }) {

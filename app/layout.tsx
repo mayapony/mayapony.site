@@ -26,7 +26,7 @@ export default function RootLayout({
       <meta content="width=device-width, initial-scale=1" name="viewport" />
       <link rel="icon" href="/favicon.ico" />
       <body className="bg-ctp-base">
-        <div className="mx-auto flex min-h-screen max-w-5xl flex-col py-6 px-5">
+        <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-5 py-6">
           <Header />
           <div className="grow">{children}</div>
           <Footer />

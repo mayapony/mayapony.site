@@ -282,7 +282,7 @@ function PhotoWall() {
           <li></li>
         </ul>
       </div>
-      <div className="absolute bottom-0 right-0 m-4 rounded-md bg-ctp-crust p-2 pt-1 pb-1 text-sm text-ctp-text">
+      <div className="absolute bottom-0 right-0 m-4 rounded-md bg-ctp-crust p-2 pb-1 pt-1 text-sm text-ctp-text">
         响应式照片墙、可进行滚动
       </div>
     </div>

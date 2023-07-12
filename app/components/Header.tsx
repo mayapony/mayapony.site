@@ -9,7 +9,7 @@ const lilitaOne = Lilita_One({ subsets: ["latin"], weight: ["400"] });
 
 export const Header = () => {
   return (
-    <header className="mb-16 rounded-lg bg-ctp-crust pt-4 pb-6">
+    <header className="mb-16 rounded-lg bg-ctp-crust pb-6 pt-4">
       <div className="text-center">
         <Link
           href="/"
