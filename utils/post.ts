@@ -3,6 +3,16 @@ import { PostMetadata } from "@/interfaces/PostMetadata";
 import fs from "fs";
 import matter from "gray-matter";
 import { readingTime } from "reading-time-estimator";
+import rehypeStringify from "rehype-stringify";
+import remarkFlexibleMarkers from "remark-flexible-markers";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import remarkObsidianCallout from "remark-obsidian-callout";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeKatex from "rehype-katex";
+import { unified } from "unified";
+import rehypeDocument from "rehype-document";
 
 export const getReadingTime = (slug: string): string => {
   const postPath = `posts/${slug}.md`;
@@ -46,3 +56,21 @@ export const getPostContent = (slug: string): PostFullData => {
     postReadingTime,
   };
 };
+
+export async function getPostContentHtml(content: string) {
+  const result = await unified()
+    .use(remarkParse)
+    .use(remarkMath)
+    .use(remarkGfm)
+    .use(remarkFlexibleMarkers)
+    .use(remarkObsidianCallout)
+    .use(remarkRehype)
+    .use(rehypeKatex)
+    .use(rehypeDocument, {
+      css: "https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css",
+    })
+    .use(rehypeStringify)
+    .process(content);
+
+  return result.toString();
+}
