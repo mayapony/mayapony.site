@@ -1,7 +1,4 @@
 "use client";
-import PostCodeBlock from "@/components/post/PostCodeBlock";
-import ReactMarkdown from "react-markdown";
-
 type MarkdownPropsType = {
   content: string;
 };

@@ -4,7 +4,7 @@ import * as Avatar from "@radix-ui/react-avatar";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
-import { PostContent } from "../post/PostContent";
+import PostContent from "../post/PostContent";
 
 export const Dropdown = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
