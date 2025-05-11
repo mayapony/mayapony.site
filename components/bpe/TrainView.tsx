@@ -124,7 +124,6 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   };
 
   const currentStep = steps[stepIndex];
-  const isNewToken = (id: number) => id >= 257;
   const hoveredPairKey = hoveredPair;
 
   return (
@@ -201,18 +200,20 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                       .find((s) => s.newTokenId === id)
                       ?.pair?.join(", ");
 
+                    const isJustMerged =
+                      currentStep.newTokenId === id && stepIndex > 0;
+
                     return (
                       <motion.div
                         key={`${idx}-${i}`}
                         className={classNames(
                           "group relative z-10 cursor-default rounded px-2 py-0.5 text-xs",
-                          isHovered && "border border-blue-500",
-                          !isNewToken(id) && "bg-gray-200 text-gray-700"
+                          !isHovered && "border-2 border-white",
+                          isHovered && "border-2 border-black",
+                          isJustMerged && "ring-2 ring-black ring-offset-1"
                         )}
                         style={{
-                          backgroundColor: isNewToken(id)
-                            ? getColorForId(id)
-                            : undefined,
+                          backgroundColor: getColorForId(id),
                         }}
                       >
                         <span>

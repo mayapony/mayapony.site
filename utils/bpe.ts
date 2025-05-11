@@ -1,7 +1,15 @@
 // ## UI Utils
-export const getColorForId = (id: number) => {
-  const hue = (id * 47) % 360;
-  return `hsl(${hue}, 70%, 80%)`;
+const colorCache = new Map<number, string>();
+
+export const getColorForId = (id: number): string => {
+  if (!colorCache.has(id)) {
+    const hue = (id * 137) % 360; // 137 是质数，能避免颜色聚集
+    const saturation = 60 + ((id * 13) % 30); // 在 60~90% 饱和度之间波动
+    const lightness = 60 + ((id * 29) % 20); // 在 60~80% 亮度之间波动
+    const hsl = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    colorCache.set(id, hsl);
+  }
+  return colorCache.get(id)!;
 };
 
 // ## BPE Utils
