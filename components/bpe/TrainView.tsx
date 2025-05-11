@@ -42,14 +42,14 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   >([]);
 
   const runBPETraining = () => {
-    const byteEncoder = bytesToUnicode(); // 关键点
+    const byteEncoder = bytesToUnicode();
 
     const vocab = new Map<number, string>();
     const encoder = new Map<string, number>();
     const newSteps: MergeStep[] = [];
 
-    let nextId = 0;
-    // 初始化 vocab: 所有单字符 token（GPT-2 是字符级，而不是 byte）
+    const usedByteSet = new Set<number>(); // 只记录输入中用到的 byte
+
     const lines = inputText
       .split("\n")
       .map((line) => line.trim())
@@ -59,19 +59,26 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
     for (const line of lines) {
       const lineBytes = Array.from(new TextEncoder().encode(line));
-      const lineChars = lineBytes.map((b) => byteEncoder.get(b)!); // byte → unicode 字符
+      lineBytes.forEach((b) => usedByteSet.add(b));
+
       const lineIds: number[] = [];
-      for (const ch of lineChars) {
+
+      for (let i = 0; i < lineBytes.length; i++) {
+        const b = lineBytes[i];
+        const ch = byteEncoder.get(b)!;
+
         if (!encoder.has(ch)) {
-          encoder.set(ch, nextId);
-          vocab.set(nextId, ch);
-          nextId++;
+          encoder.set(ch, b); // 初始 ID = byte 值
+          vocab.set(b, ch);
         }
+
         lineIds.push(encoder.get(ch)!);
       }
+
       sequences.push(lineIds);
     }
 
+    // 保存 Step 0 的 Encoder 和 Vocab 状态
     const initialEncoderEntries: [string, number][] = Array.from(
       encoder.entries()
     );
@@ -79,7 +86,6 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     const initialVocabEntries: [number, string][] = Array.from(vocab.entries());
     setInitialVocabEntries(initialVocabEntries);
 
-    // Step 0（初始状态）
     const initialStep: MergeStep = {
       step: 0,
       pair: [-1, -1],
@@ -90,7 +96,8 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     };
     newSteps.push(initialStep);
 
-    // 执行 BPE 合并
+    let nextId = 256; // 新 token 的起始 ID
+
     for (let step = 0; step < numMerges; step++) {
       const pairStats = getStats(sequences);
       if (pairStats.size === 0) break;
