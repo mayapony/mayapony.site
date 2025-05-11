@@ -22,9 +22,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 🩹 预加载 upload-artifact@v3，避免 Vercel 或 GitHub 报错
-      - name: Preload upload-artifact@v3
-        uses: actions/upload-artifact@v3
+      - name: Preload upload-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: preload
           path: ./README.md  # 使用任意小文件即可，保证能执行
