@@ -7,27 +7,27 @@ import { useState } from "react";
 interface EncodeDecodeViewProps {
   vocab: Map<number, string>;
   encoder: Map<string, number>;
-  mergePairs: Array<[number, number, number]>;
 }
 
 interface Step {
   step: number;
   tokens: number[];
+  pairStats: Array<{
+    pair: [number, number];
+    freq: number;
+    key: string;
+    mergedStr: string;
+    inEncoder: boolean;
+  }>;
   merged?: string;
-  pair?: [number, number];
   newTokenId?: number;
   reason?: string;
-  context?: {
-    previousTokens: number[];
-    matchedPositions: number[];
-    vocabPreview: string;
-  };
+  nextHint?: string;
 }
 
 export default function EncodeDecodeView({
   vocab,
   encoder,
-  mergePairs,
 }: EncodeDecodeViewProps) {
   const [inputText, setInputText] = useState("");
   const [steps, setSteps] = useState<Step[]>([]);
@@ -40,63 +40,107 @@ export default function EncodeDecodeView({
     unicodeToByte.set(char, byte);
   }
 
+  const getPairStats = (
+    tokens: number[],
+    vocab: Map<number, string>
+  ): Step["pairStats"] => {
+    const stats = new Map<string, { pair: [number, number]; freq: number }>();
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const pair: [number, number] = [tokens[i], tokens[i + 1]];
+      const key = `${pair[0]}_${pair[1]}`;
+      stats.set(key, {
+        pair,
+        freq: (stats.get(key)?.freq || 0) + 1,
+      });
+    }
+    return Array.from(stats.values())
+      .map(({ pair, freq }) => {
+        const mergedStr =
+          (vocab.get(pair[0]) || "") + (vocab.get(pair[1]) || "");
+        const inEncoder = encoder.has(mergedStr);
+        return {
+          pair,
+          freq,
+          key: `${pair[0]}_${pair[1]}`,
+          mergedStr,
+          inEncoder,
+        };
+      })
+      .sort((a, b) => {
+        if (a.inEncoder && !b.inEncoder) return -1;
+        if (!a.inEncoder && b.inEncoder) return 1;
+        return b.freq - a.freq;
+      });
+  };
+
   const handleEncode = () => {
     const textBytes = Array.from(new TextEncoder().encode(inputText));
     const initTokens = textBytes.map(
       (b) => encoder.get(byteEncoder.get(b)!) ?? b
     );
 
-    const history: Step[] = [
-      {
-        step: 0,
-        tokens: [...initTokens],
-        reason: "初始化：将每个 UTF-8 字节映射为初始 Token",
-      },
-    ];
-
     let tokens = [...initTokens];
-    let step = 1;
+    let step = 0;
+    const history: Step[] = [];
 
-    for (const [a, b, newId] of mergePairs) {
+    while (true) {
+      const pairStats = getPairStats(tokens, vocab);
+      const validStats = pairStats.filter(({ inEncoder }) => inEncoder);
+
+      const stepData: Step = {
+        step,
+        tokens: [...tokens],
+        pairStats,
+      };
+
+      if (step === 0) {
+        stepData.reason =
+          "初始化：将每个字节转换为 Unicode 字符并映射为 Token ID。";
+      }
+
+      if (validStats.length === 0) {
+        stepData.nextHint = "无可合并对，编码完成。";
+        history.push(stepData);
+        break;
+      }
+
+      const best = validStats[0];
+      const newId = encoder.get(best.mergedStr)!;
+
+      stepData.merged = `${vocab.get(best.pair[0])} + ${vocab.get(
+        best.pair[1]
+      )} = ${best.mergedStr}`;
+      stepData.newTokenId = newId;
+      stepData.reason = `选择频率最高的字符对 '${vocab.get(best.pair[0])}' (${
+        best.pair[0]
+      }) 与 '${vocab.get(best.pair[1])}' (${best.pair[1]})，合并为 '${
+        best.mergedStr
+      }'。`;
+      stepData.nextHint = `下一步将合并 '${vocab.get(
+        best.pair[0]
+      )}' 与 '${vocab.get(best.pair[1])}' 为 '${
+        best.mergedStr
+      }'，对应 ID 为 ${newId}。`;
+
+      history.push(stepData);
+
       const newTokens: number[] = [];
-      let changed = false;
-      const matchedPositions: number[] = [];
-
-      for (let i = 0; i < tokens.length; ) {
-        if (i < tokens.length - 1 && tokens[i] === a && tokens[i + 1] === b) {
+      let i = 0;
+      while (i < tokens.length) {
+        if (
+          i < tokens.length - 1 &&
+          tokens[i] === best.pair[0] &&
+          tokens[i + 1] === best.pair[1]
+        ) {
           newTokens.push(newId);
-          matchedPositions.push(i);
           i += 2;
-          changed = true;
         } else {
           newTokens.push(tokens[i]);
           i++;
         }
       }
 
-      if (!changed) continue;
-
-      const vocabPreview = `${vocab.get(a)} + ${vocab.get(b)} → ${vocab.get(
-        newId
-      )}`;
-
-      tokens = [...newTokens];
-      history.push({
-        step,
-        tokens: [...tokens],
-        merged: vocabPreview,
-        pair: [a, b],
-        newTokenId: newId,
-        reason: `在当前 token 序列中发现 (${a}, ${b})，表示为 '${vocab.get(
-          a
-        )}${vocab.get(b)}'，执行 BPE 合并生成新 token ID ${newId}。`,
-        context: {
-          previousTokens: [...history[history.length - 1].tokens],
-          matchedPositions,
-          vocabPreview,
-        },
-      });
-
+      tokens = newTokens;
       step++;
     }
 
@@ -120,7 +164,9 @@ export default function EncodeDecodeView({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">🧪 GPT-2 分词器编码与解码演示</h2>
+      <h2 className="text-xl font-semibold">
+        🧪 GPT-2 分词器编码与解码演示（基于 Encoder/Vocab）
+      </h2>
 
       <textarea
         value={inputText}
@@ -186,32 +232,31 @@ export default function EncodeDecodeView({
             )}
 
             {current.reason && (
-              <div className="space-y-1 text-sm text-gray-700">
-                <div>
-                  📌 <strong>操作原因说明：</strong> {current.reason}
-                </div>
-                {current.context && (
-                  <>
-                    <div>
-                      🔍 <strong>依赖状态：</strong>
-                    </div>
-                    <ul className="ml-4 list-disc space-y-1 text-xs text-gray-600">
-                      <li>
-                        上一步 Token 序列为：
-                        <span className="ml-1">
-                          {current.context.previousTokens
-                            .map((id) => `${id}(${vocab.get(id)})`)
-                            .join(" ")}
-                        </span>
+              <div className="text-sm text-gray-700">
+                📌 <strong>操作原因说明：</strong> {current.reason}
+              </div>
+            )}
+
+            {current.nextHint && (
+              <div className="text-sm text-blue-700">
+                📎 <strong>下一步提示：</strong> {current.nextHint}
+              </div>
+            )}
+
+            {current.pairStats && (
+              <div className="text-sm text-gray-600">
+                <strong>📊 当前可合并对频率统计：</strong>
+                <ul className="mt-1 list-inside list-disc space-y-1">
+                  {current.pairStats.map(
+                    ({ key, pair, freq, mergedStr, inEncoder }) => (
+                      <li key={key}>
+                        {`'${vocab.get(pair[0])}'_${vocab.get(pair[1])}`} →{" "}
+                        {`'${mergedStr}'`}，频率：{freq}
+                        {inEncoder ? " ✅" : " ❌"}
                       </li>
-                      <li>
-                        合并目标位置：[
-                        {current.context.matchedPositions.join(", ")}]
-                      </li>
-                      <li>字符合并预览：{current.context.vocabPreview}</li>
-                    </ul>
-                  </>
-                )}
+                    )
+                  )}
+                </ul>
               </div>
             )}
           </div>
