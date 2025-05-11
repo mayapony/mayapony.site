@@ -12,7 +12,8 @@ tags: ["阅读记录"]
 Functions are the basic building block of any application, whether they’re local functions, imported from another module, or methods on a class. They’re also values, and just like other values, TypeScript has many ways to describe how functions can be called. Let’s learn about how to write types that describe functions.
 
 ## Function Type Expressions
--------------------------------------------------------
+
+---
 
 == The simplest way to describe a function is with a function type expression ==. These types are syntactically similar to arrow functions:
 
@@ -24,7 +25,6 @@ function printToConsole(s: string) {
   console.log(s);
 }
 greeter(printToConsole);
-
 ```
 
 The syntax `(a: string) => void` means “a function with one parameter, named `a`, of type string, that doesn’t have a return value”. Just like with function declarations, if a parameter type isn’t specified, it’s implicitly `any`.
@@ -62,7 +62,8 @@ doSomething(myFunc);
 == Note that the syntax is slightly different compared to a function type expression - use : between the parameter list and the return type rather than =>. ==
 
 ## Construct Signatures
----------------------------------------------
+
+---
 
 JavaScript functions can also be invoked with the `new` operator. TypeScript refers to these as _constructors_ because they usually create a new object. You can write a _construct signature_ by adding the `new` keyword in front of a call signature:
 
@@ -85,7 +86,8 @@ interface CallOrConstruct {
 ```
 
 ## Generic Functions
----------------------------------------
+
+---
 
 It’s common to write a function where the types of the input relate to the type of the output, or where the types of two inputs are related in some way. Let’s consider for a moment a function that returns the first element of an array:
 
@@ -123,13 +125,15 @@ Note that we didn’t have to specify `Type` in this sample. The type was _infer
 We can use multiple type parameters as well. For example, a standalone version of `map` would look like this:
 
 ```ts
-function map<Input, Output>(arr: Input[], func: (arg: Input) => Output): Output[] {
+function map<Input, Output>(
+  arr: Input[],
+  func: (arg: Input) => Output
+): Output[] {
   return arr.map(func);
 }
 // Parameter 'n' is of type 'string'
 // 'parsed' is of type 'number[]'
 const parsed = map(["1", "2", "3"], (n) => parseInt(n));
-
 ```
 
 Note that in this example, TypeScript could infer both the type of the `Input` type parameter (from the given `string` array), as well as the `Output` type parameter based on the return value of the function expression (`number`).
@@ -144,7 +148,7 @@ We’ve written some generic functions that can work on _any_ kind of value. Som
 Let’s write a function that returns the longer of two values. To do this, we need a `length` property that’s a number. We _constrain_ the type parameter to that type by writing an `extends` clause:
 
 > [!note] NOTE
-> 例如下面这个例子，只接受含有length属性的类型
+> 例如下面这个例子，只接受含有 length 属性的类型
 
 ```ts
 function longest<Type extends { length: number }>(a: Type, b: Type) {
@@ -197,7 +201,7 @@ Type '{ length: number; }' is not assignable to type 'Type'.
 It might look like this function is OK - `Type` is constrained to `{ length: number }`, and the function either returns `Type` or a value matching that constraint. ==The problem is that the function promises to return the _same_ kind of object as was passed in, not just _some_ object matching the constraint==. If this code were legal, you could write code that definitely wouldn’t work:
 
 > [!tip] IMPORTANT
-> Type类型一定包含length类型，包含length的不一定是Type类型
+> Type 类型一定包含 length 类型，包含 length 的不一定是 Type 类型
 
 ```ts
 // 'arr' gets value { length: 6 }
@@ -205,7 +209,6 @@ const arr = minimumLength([1, 2, 3], 6);
 // and crashes here because arrays have
 // a 'slice' method, but not the returned object!
 console.log(arr.slice(0));
-
 ```
 
 ### Specifying Type Arguments
@@ -256,14 +259,14 @@ const b = firstElement2([1, 2, 3]);
 ```
 
 > [!tip] IMPORTANT
-> 第一个例子，TS能推断出返回值的类型，而第二个则无法推断，因为第二个的Type是一个继承了any[]的类型？
+> 第一个例子，TS 能推断出返回值的类型，而第二个则无法推断，因为第二个的 Type 是一个继承了 any[]的类型？
 
 These might seem identical at first glance, but `firstElement1` is a much better way to write this function. Its inferred return type is `Type`, but `firstElement2`’s inferred return type is `any` because TypeScript has to resolve the `arr[0]` expression using the constraint type, rather than “waiting” to resolve the element during a call.
 
 > **Rule**: When possible, use the type parameter itself rather than constraining it
 
 > [!tip] IMPORTANT
-> 尽量不要使用类型约束而直接使用type参数它自己
+> 尽量不要使用类型约束而直接使用 type 参数它自己
 
 #### Use Fewer Type Parameters
 
@@ -282,7 +285,7 @@ function filter2<Type, Func extends (arg: Type) => boolean>(
 ```
 
 > [!tip] IMPORTANT
-> 因为类型Func没有并没有将两个属性建立起联系
+> 因为类型 Func 没有并没有将两个属性建立起联系
 
 We’ve created a type parameter `Func` that _doesn’t relate two values_. That’s always a red flag, because it means callers wanting to specify type arguments have to manually specify an extra type argument for no reason. `Func` doesn’t do anything but make the function harder to read and reason about!
 
@@ -297,7 +300,6 @@ function greet<Str extends string>(s: Str) {
   console.log("Hello, " + s);
 }
 greet("world");
-
 ```
 
 We could just as easily have written a simpler version:
@@ -315,8 +317,7 @@ Remember, type parameters are for _relating the types of multiple values_. If a 
 
 > **Rule**: If a type parameter only appears in one location, strongly reconsider if you actually need it
 
-Optional Parameters
--------------------------------------------
+## Optional Parameters
 
 Functions in JavaScript often take a variable number of arguments. For example, the `toFixed` method of `number` takes an optional digit count:
 
@@ -325,7 +326,6 @@ function f(n: number) {
   console.log(n.toFixed()); // 0 arguments
   console.log(n.toFixed(3)); // 1 argument
 }
-
 ```
 
 We can model this in TypeScript by marking the parameter as _optional_ with `?`:
@@ -347,7 +347,6 @@ You can also provide a parameter _default_:
 function f(x = 10) {
   // ...
 }
-
 ```
 
 Now in the body of `f`, `x` will have type `number` because any `undefined` argument will be replaced with `10`. Note that when a parameter is optional, callers can always pass `undefined`, as this simply simulates a “missing” argument:
@@ -359,7 +358,6 @@ declare function f(x?: number): void;
 f();
 f(10);
 f(undefined);
-
 ```
 
 ### Optional Parameters in Callbacks
@@ -407,8 +405,7 @@ In JavaScript, if you call a function with more arguments than there are paramet
 
 > When writing a function type for a callback, _never_ write an optional parameter unless you intend to _call_ the function without passing that argument
 
-Function Overloads
------------------------------------------
+## Function Overloads
 
 Some JavaScript functions can be called in a variety of argument counts and types. For example, you might write a function to produce a `Date` that takes either a timestamp (one argument) or a month/day/year specification (three arguments).
 
@@ -436,7 +433,7 @@ In this example, we wrote two overloads: one accepting one argument, and another
 Then, we wrote a function implementation with a compatible signature. Functions have an _implementation_ signature, but this signature can’t be called directly. Even though we wrote a function with two optional parameters after the required one, it can’t be called with two parameters!
 
 > [!tip] IMPORTANT
-> 先写signature再写实现函数，并且signature不能被直接调用
+> 先写 signature 再写实现函数，并且 signature 不能被直接调用
 
 ### Overload Signatures and the Implementation Signature
 
@@ -459,7 +456,7 @@ Again, the signature used to write the function body can’t be “seen” from 
 The implementation signature must also be _compatible_ with the overload signatures. For example, these functions have errors because the implementation signature doesn’t match the overloads in a correct way:
 
 > [!tip] IMPORTANT
-> 只有一个signature是没有意义的，只有一个signature再写一个它的实现不如直接写一个普通函数，所以要2+个signature才行。对signature的实现必须兼容所有的重载signature，上面的例子报错就是没有兼容（缺少变量x）。
+> 只有一个 signature 是没有意义的，只有一个 signature 再写一个它的实现不如直接写一个普通函数，所以要 2+个 signature 才行。对 signature 的实现必须兼容所有的重载 signature，上面的例子报错就是没有兼容（缺少变量 x）。
 
 ```ts
 function fn(x: boolean): void;
@@ -499,7 +496,7 @@ function len(x: any) {
 This function is fine; we can invoke it with strings or arrays. However, we can’t invoke it with a value that might be a string _or_ an array, ==because TypeScript can only resolve a function call to a single overload:==
 
 > [!tip] IMPORTANT
-> 因为Typescript只能匹配一个函数重载
+> 因为 Typescript 只能匹配一个函数重载
 > 例如 len(s: string) 匹配第一个重载，而 len(s: string | any[]) 则不能匹配了，所以会出问题就像下面一样。
 
 ```ts
@@ -528,7 +525,6 @@ No overload matches this call.
 function len(x: any[] | string) {
   return x.length;
 }
-
 ```
 
 This is much better! Callers can invoke this with either sort of value, and as an added bonus, we don’t have to figure out a correct implementation signature.
@@ -536,15 +532,14 @@ This is much better! Callers can invoke this with either sort of value, and as a
 > Always prefer parameters with union types instead of overloads when possible
 
 > [!tip] IMPORTANT
-> 所以再使用union types `(type1 | type2)` 能解决的情况下，不要使用重载
-
+> 所以再使用 union types `(type1 | type2)` 能解决的情况下，不要使用重载
 
 ### Declaring `this` in a Function
 
 TypeScript will infer what the `this` should be in a function via code flow analysis, for example in the following:
 
 > [!tip] IMPORTANT
-> this永远指向调用方，如果不存在调用者则是全局变量，浏览器下是window
+> this 永远指向调用方，如果不存在调用者则是全局变量，浏览器下是 window
 
 ```ts
 const user = {
@@ -554,13 +549,12 @@ const user = {
     this.admin = true;
   },
 };
-
 ```
 
 TypeScript understands that the function `user.becomeAdmin` has a corresponding `this` which is the outer object `user`. `this`, _heh_, can be enough for a lot of cases, but there are a lot of cases where you need more control over what object `this` represents. The JavaScript specification states that you cannot have a parameter called `this`, and so TypeScript uses that syntax space to let you declare the type for `this` in the function body.
 
 > [!tip] IMPORTANT
-> this的值能被特别指定
+> this 的值能被特别指定
 
 ```ts
 interface DB {
@@ -570,7 +564,6 @@ const db = getDB();
 const admins = db.filterUsers(function (this: User) {
   return this.admin;
 });
-
 ```
 
 This pattern is common with callback-style APIs, where another object typically controls when your function is called. Note that you need to use `function` and not arrow functions to get this behavior:
@@ -588,8 +581,7 @@ Element implicitly has an 'any' type because type 'typeof globalThis' has no ind
 
 ```
 
-Other Types to Know About
--------------------------------------------------------
+## Other Types to Know About
 
 There are some additional types you’ll want to recognize that appear often when working with function types. Like all types, you can use them everywhere, but these are especially relevant in the context of functions.
 
@@ -609,7 +601,7 @@ function noop() {
 > `void` is not the same as `undefined`.
 
 > [!tip] IMPORTANT
-> void与undefined并不相同！
+> void 与 undefined 并不相同！
 
 ### `object`
 
@@ -624,7 +616,7 @@ Note that in JavaScript, function values are objects: They have properties, have
 The `unknown` type represents _any_ value. This is similar to the `any` type, but is safer because it’s not legal to do anything with an `unknown` value:
 
 > [!tip] IMPORTANT
-> 对unknown的变量做人和操作都不合法（所以它安全）
+> 对 unknown 的变量做人和操作都不合法（所以它安全）
 
 ```
 function f1(a: any) {
@@ -646,7 +638,6 @@ function safeParse(s: string): unknown {
 }
 // Need to be careful with 'obj'!
 const obj = safeParse(someRandomString);
-
 ```
 
 ### `never`
@@ -673,7 +664,6 @@ function fn(x: string | number) {
     x; // has type 'never'!
   }
 }
-
 ```
 
 ### `Function`
@@ -691,12 +681,11 @@ This is an _untyped function call_ and is generally best avoided because of the 
 
 If you need to accept an arbitrary function but don’t intend to call it, the type `() => void` is generally safer.
 
-Rest Parameters and Arguments
----------------------------------------------------------------
+## Rest Parameters and Arguments
 
 > Background Reading:  
 > [Rest Parameters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/rest_parameters)  
-> [Spread Syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)  
+> [Spread Syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)
 
 ### Rest Parameters
 
@@ -710,7 +699,6 @@ function multiply(n: number, ...m: number[]) {
 }
 // 'a' gets value [10, 20, 30, 40]
 const a = multiply(10, 1, 2, 3, 4);
-
 ```
 
 In TypeScript, the type annotation on these parameters is implicitly `any[]` instead of `any`, and any type annotation given must be of the form `Array<T>`or `T[]`, or a tuple type (which we’ll learn about later).
@@ -723,13 +711,12 @@ Conversely, we can _provide_ a variable number of arguments from an array using 
 const arr1 = [1, 2, 3];
 const arr2 = [4, 5, 6];
 arr1.push(...arr2);
-
 ```
 
 ==Note that in general, TypeScript does not assume that arrays are immutable==. This can lead to some surprising behavior:
 
 > [!tip] IMPORTANT
-> 因为arrays的长度是可变的，例如下面args可能被更改为`[8, 5, 7]`，当这个时候再调用`Math.atan2`的时候就会出错，所以TS觉得这样做不安全，便会报下面这样的错误
+> 因为 arrays 的长度是可变的，例如下面 args 可能被更改为`[8, 5, 7]`，当这个时候再调用`Math.atan2`的时候就会出错，所以 TS 觉得这样做不安全，便会报下面这样的错误
 
 ```ts
 // Inferred type is number[] -- "an array with zero or more numbers",
@@ -743,7 +730,7 @@ A spread argument must either have a tuple type or be passed to a rest parameter
 The best fix for this situation depends a bit on your code, but in general a `const` context is the most straightforward solution:
 
 > [!tip] IMPORTANT
-> 使用as const将其转换为字面量类型，[文档](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)
+> 使用 as const 将其转换为字面量类型，[文档](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#literal-types)
 
 ```ts
 // Inferred as 2-length tuple
@@ -754,11 +741,10 @@ const angle = Math.atan2(...args);
 
 Using rest arguments may require turning on [`downlevelIteration`](https://www.typescriptlang.org/tsconfig#downlevelIteration) when targeting older runtimes.
 
-Parameter Destructuring
----------------------------------------------------
+## Parameter Destructuring
 
 > Background Reading:  
-> [Destructuring Assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)  
+> [Destructuring Assignment](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment)
 
 You can use parameter destructuring to conveniently unpack objects provided as an argument into one or more local variables in the function body. In JavaScript, it looks like this:
 
@@ -767,7 +753,6 @@ function sum({ a, b, c }) {
   console.log(a + b + c);
 }
 sum({ a: 10, b: 3, c: 9 });
-
 ```
 
 The type annotation for the object goes after the destructuring syntax:
@@ -786,11 +771,9 @@ type ABC = { a: number; b: number; c: number };
 function sum({ a, b, c }: ABC) {
   console.log(a + b + c);
 }
-
 ```
 
-Assignability of Functions
----------------------------------------------------------
+## Assignability of Functions
 
 ### Return type `void`
 
@@ -812,7 +795,6 @@ const f2: voidFunc = () => true;
 const f3: voidFunc = function () {
   return true;
 };
-
 ```
 
 And when the return value of one of these functions is assigned to another variable, it will retain the type of `void`:
@@ -849,6 +831,6 @@ const f3 = function (): void {
 
 For more on `void` please refer to these other documentation entries:
 
-*   [v1 handbook](https://www.typescriptlang.org/docs/handbook/basic-types.html#void)
-*   [v2 handbook](https://www.typescriptlang.org/docs/handbook/2/functions.html#void)
-*   [FAQ - “Why are functions returning non-void assignable to function returning void?”](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-returning-non-void-assignable-to-function-returning-void)
+- [v1 handbook](https://www.typescriptlang.org/docs/handbook/basic-types.html#void)
+- [v2 handbook](https://www.typescriptlang.org/docs/handbook/2/functions.html#void)
+- [FAQ - “Why are functions returning non-void assignable to function returning void?”](https://github.com/Microsoft/TypeScript/wiki/FAQ#why-are-functions-returning-non-void-assignable-to-function-returning-void)

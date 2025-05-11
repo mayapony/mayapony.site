@@ -6,14 +6,14 @@ tags: ["git"]
 layout: "search"
 ---
 
-# 配置SSH协议的Git服务
+# 配置 SSH 协议的 Git 服务
 
-## 生成sshkey
+## 生成 sshkey
 
 使用命令
 
 ```sh
-ssh-keygen -t ed25519 -C "xxxxx@xxx.com"  
+ssh-keygen -t ed25519 -C "xxxxx@xxx.com"
 ```
 
 其中`-t(type)`选择加密类型，`-C(comment)`为备注信息
@@ -22,7 +22,7 @@ ssh-keygen -t ed25519 -C "xxxxx@xxx.com"
 
 之后会在 `~/.ssh` 内生成两个文件，分别是 `id_ed25519` `id_ed25519.pub` 其中前者为私钥，后者为公钥。
 
-## 在Gitee添加公钥
+## 在 Gitee 添加公钥
 
 单独仓库添加：
 
@@ -30,7 +30,7 @@ ssh-keygen -t ed25519 -C "xxxxx@xxx.com"
 
 也可以在 **「个人主页」-> 「安全设置」**内添加
 
-## 测试SSH连接
+## 测试 SSH 连接
 
 ```sh
 ssh -T git@gitee.com
@@ -38,11 +38,9 @@ ssh -T git@gitee.com
 
 `-T(test)` 表示测试连接，不显示终端只显示连接结果信息
 
+## 更换 git remote url
 
-
-## 更换git remote url
-
-如果以前配置过git remote地址，即 `git remote -v` 输出 url 格式仍为 https 格式。使用一下命令修改：
+如果以前配置过 git remote 地址，即 `git remote -v` 输出 url 格式仍为 https 格式。使用一下命令修改：
 
 ```sh
 git remote set-url origin git@gitee.com:用户名/仓库名.git
@@ -55,7 +53,7 @@ git remote set-url origin git@gitee.com:mayapony/blog.git
 顺便用
 
 ```shell
-scp ~/.ssh/id_ed25519.pub 用户名@服务器地址:~/.ssh/id_ed25519.pub 
+scp ~/.ssh/id_ed25519.pub 用户名@服务器地址:~/.ssh/id_ed25519.pub
 
 # 登陆服务器，以下命令在服务器执行，把公钥内容添加到 authorized_keys 文件中
 cat ~/.ssh/id_ed25519.pub >> ~/.ssh/authorized_keys
