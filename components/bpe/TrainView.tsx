@@ -34,6 +34,13 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   const [vocabMap, setVocabMap] = useState<Map<number, string>>(new Map());
   const [encoderMap, setEncoderMap] = useState<Map<string, number>>(new Map());
 
+  const [initialEncoderEntries, setInitialEncoderEntries] = useState<
+    [string, number][]
+  >([]);
+  const [initialVocabEntries, setInitialVocabEntries] = useState<
+    [number, string][]
+  >([]);
+
   const runBPETraining = () => {
     const byteEncoder = bytesToUnicode(); // 关键点
 
@@ -64,6 +71,13 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       }
       sequences.push(lineIds);
     }
+
+    const initialEncoderEntries: [string, number][] = Array.from(
+      encoder.entries()
+    );
+    setInitialEncoderEntries(initialEncoderEntries);
+    const initialVocabEntries: [number, string][] = Array.from(vocab.entries());
+    setInitialVocabEntries(initialVocabEntries);
 
     // Step 0（初始状态）
     const initialStep: MergeStep = {
@@ -302,23 +316,77 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
         </div>
       )}
 
-      {vocabMap.size > 0 && (
-        <div className="mt-8 border-t pt-4 text-sm">
-          <h3 className="mb-2 text-lg font-semibold">📘 Encoder 映射表</h3>
-          <div className="grid max-h-[300px] grid-cols-1 gap-4 overflow-y-auto pr-2 md:grid-cols-2">
-            {[...encoderMap.entries()]
-              .sort(([, aId], [, bId]) => aId - bId)
-              .map(([token, id]) => (
-                <div
-                  key={id}
-                  className="flex justify-between rounded border p-2 hover:bg-gray-50"
-                >
-                  <span className="text-gray-700">
-                    <code>{token}</code> → <strong>{id}</strong>
-                  </span>
-                  <span className="text-xs text-gray-500">ID {id}</span>
-                </div>
-              ))}
+      {steps.length > 0 && (
+        <div className="col-span-3 mt-8 border-t pt-4 text-sm">
+          <h3 className="mb-4 text-lg font-semibold">
+            🧬 当前 Step {stepIndex} 的编码与词汇表状态
+          </h3>
+          <div className="flex gap-6">
+            {/* Encoder */}
+            <div className="max-h-[300px] w-1/2 overflow-y-auto pr-2">
+              <h4 className="mb-2 font-semibold text-blue-700">
+                📘 Encoder 映射表
+              </h4>
+              <div className="grid grid-cols-1 gap-2">
+                {(stepIndex === 0
+                  ? initialEncoderEntries
+                  : [...encoderMap.entries()].filter(([, id]) => {
+                      const currentMaxId = steps
+                        .slice(0, stepIndex + 1)
+                        .map((s) => s.newTokenId)
+                        .filter((id) => id !== -1);
+                      return (
+                        currentMaxId.length === 0 ||
+                        id <= Math.max(...currentMaxId)
+                      );
+                    })
+                )
+                  .sort(([, aId], [, bId]) => aId - bId)
+                  .map(([token, id]) => (
+                    <div
+                      key={`enc-${id}`}
+                      className="flex justify-between rounded border p-2 hover:bg-gray-50"
+                    >
+                      <span className="text-gray-700">
+                        <code>{token}</code> → <strong>{id}</strong>
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+
+            {/* Vocab */}
+            {/* Vocab */}
+            <div className="max-h-[300px] w-1/2 overflow-y-auto pr-2">
+              <h4 className="mb-2 font-semibold text-green-700">📗 Vocab 表</h4>
+              <div className="grid grid-cols-1 gap-2">
+                {(stepIndex === 0
+                  ? initialVocabEntries
+                  : [...vocabMap.entries()].filter(([id]) => {
+                      const currentMaxId = steps
+                        .slice(0, stepIndex + 1)
+                        .map((s) => s.newTokenId)
+                        .filter((id) => id !== -1);
+                      return (
+                        initialVocabEntries.some(([origId]) => origId === id) ||
+                        (currentMaxId.length > 0 &&
+                          id <= Math.max(...currentMaxId))
+                      );
+                    })
+                )
+                  .sort(([aId], [bId]) => aId - bId)
+                  .map(([id, token]) => (
+                    <div
+                      key={`vocab-${id}`}
+                      className="flex justify-between rounded border p-2 hover:bg-gray-50"
+                    >
+                      <span className="text-gray-700">
+                        <strong>{id}</strong> → <code>{token}</code>
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
         </div>
       )}
