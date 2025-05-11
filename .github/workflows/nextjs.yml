@@ -1,9 +1,9 @@
-name: Deploy Next.js site to Pages
+name: Deploy Next.js site to GitHub Pages
 
 on:
   push:
     branches:
-      - main  # ← 请确认你的默认分支是 main，如为 master 请改成 master
+      - main  # 请确认你的默认分支是 main，如为 master 请改成 master
   workflow_dispatch:
 
 permissions:
@@ -20,13 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Preload upload-artifact@v4
-        uses: actions/upload-artifact@v4
-        with:
-          name: preload
-          path: ./README.md  # 使用任意小文件即可，保证能执行
+        uses: actions/checkout@v4
 
       - name: Detect package manager
         id: detect-package-manager
@@ -46,34 +40,23 @@ jobs:
             exit 1
           fi
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "18"
           cache: ${{ steps.detect-package-manager.outputs.manager }}
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
-        with:
-          static_site_generator: next
-
-      - name: Restore cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            .next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json', '**/yarn.lock') }}-
 
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
 
       - name: Build with Next.js
-        run: ${{ steps.detect-package-manager.outputs.runner }} next build
+        run: ${{ steps.detect-package-manager.outputs.runner }} next build && next export
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload GitHub Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
 
@@ -85,5 +68,4 @@ jobs:
     needs: build
     steps:
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
