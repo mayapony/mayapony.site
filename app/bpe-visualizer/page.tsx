@@ -5,15 +5,29 @@ import TrainView from "@/components/bpe/TrainView";
 import { useState } from "react";
 
 export default function BpePage() {
-  const [merges, setMerges] = useState<Map<string, number>>(new Map());
+  const [vocabMap, setVocabMap] = useState<Map<number, string>>(new Map());
+  const [encoderMap, setEncoderMap] = useState<Map<string, number>>(new Map());
+  const [mergePairs, setMergePairs] = useState<Array<[number, number, number]>>(
+    []
+  );
 
   return (
     <div className="space-y-8 p-6">
-      <TrainView onMergesReady={setMerges} />
+      <TrainView
+        onMergesReady={(vocab, encoder, mergePairs) => {
+          setVocabMap(vocab);
+          setEncoderMap(encoder);
+          setMergePairs(mergePairs);
+        }}
+      />
 
-      {merges.size > 0 && (
+      {vocabMap.size > 0 && (
         <div className="border-t pt-8">
-          <EncodeDecodeView merges={merges} />
+          <EncodeDecodeView
+            vocab={vocabMap}
+            encoder={encoderMap}
+            mergePairs={mergePairs}
+          />
         </div>
       )}
     </div>

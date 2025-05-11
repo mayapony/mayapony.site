@@ -15,6 +15,7 @@
     "classnames": "^2.5.1",
     "framer-motion": "^10.12.5",
     "gray-matter": "^4.0.3",
+    "lucide-react": "^0.507.0",
     "markdown-to-jsx": "^7.1.9",
     "next": "^13.4.9",
     "react": "^18.2.0",

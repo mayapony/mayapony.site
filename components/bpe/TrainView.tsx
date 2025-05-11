@@ -21,7 +21,11 @@ interface MergeStep {
 }
 
 type TrainViewProps = {
-  onMergesReady?: (merges: Map<string, number>) => void;
+  onMergesReady?: (
+    vocabMap: Map<number, string>,
+    encoderMap: Map<string, number>,
+    mergePairs: Array<[number, number, number]>
+  ) => void;
 };
 
 export default function TrainView({ onMergesReady }: TrainViewProps) {
@@ -134,13 +138,13 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     setEncoderMap(encoder);
 
     if (onMergesReady) {
-      const mergeMap = new Map<string, number>();
+      const mergePairs: Array<[number, number, number]> = [];
       newSteps.forEach((step) => {
         if (step.pair[0] !== -1 && step.pair[1] !== -1) {
-          mergeMap.set(`${step.pair[0]}_${step.pair[1]}`, step.newTokenId);
+          mergePairs.push([step.pair[0], step.pair[1], step.newTokenId]);
         }
       });
-      onMergesReady(mergeMap);
+      onMergesReady(vocab, encoder, mergePairs);
     }
   };
 
