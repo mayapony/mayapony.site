@@ -160,7 +160,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="输入训练文本，每行一句"
-          className="mb-2 w-full rounded border p-2"
+          className="mb-2 w-full resize-none rounded border p-2"
           rows={4}
         />
 
@@ -170,11 +170,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
             type="number"
             value={numMerges}
             onChange={(e) => setNumMerges(Number(e.target.value))}
-            className="w-20 rounded border p-1"
+            className="w-20 resize-none rounded border p-1"
           />
           <button
             onClick={runBPETraining}
-            className="rounded bg-blue-600 px-4 py-1 text-white hover:bg-blue-700"
+            className="rounded bg-ctp-flamingo px-4 py-1 text-white hover:bg-ctp-pink"
           >
             开始训练
           </button>
@@ -294,7 +294,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       {currentStep && (
         <div className="border-l pl-4 text-sm">
           <h3 className="mb-2 font-semibold">当前 Pair 频率表</h3>
-          <div className="h-[400px] overflow-y-auto pr-2">
+          <div className="h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
             {[...getStats(currentStep.updatedSequences).entries()]
               .sort((a, b) => b[1] - a[1])
               .map(([key, freq]) => {
@@ -334,7 +334,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
           </h3>
           <div className="flex gap-6">
             {/* Encoder */}
-            <div className="max-h-[300px] w-1/2 overflow-y-auto pr-2">
+            <div className="max-h-[300px] w-1/2 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
               <h4 className="mb-2 font-semibold text-blue-700">
                 📘 Encoder 映射表
               </h4>
@@ -367,8 +367,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
             </div>
 
             {/* Vocab */}
-            {/* Vocab */}
-            <div className="max-h-[300px] w-1/2 overflow-y-auto pr-2">
+            <div className="max-h-[300px] w-1/2 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
               <h4 className="mb-2 font-semibold text-green-700">📗 Vocab 表</h4>
               <div className="grid grid-cols-1 gap-2">
                 {(stepIndex === 0

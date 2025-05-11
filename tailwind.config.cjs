@@ -11,6 +11,7 @@ module.exports = {
   plugins: [
     require("@tailwindcss/typography"),
     require("prettier-plugin-tailwindcss"),
+    require("tailwind-scrollbar"),
     require("@catppuccin/tailwindcss")({
       // prefix to use, e.g. `text-pink` becomes `text-ctp-pink`.
       // default is `false`, which means no prefix
