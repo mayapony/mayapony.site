@@ -273,20 +273,27 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
               .sort((a, b) => b[1] - a[1])
               .map(([key, freq]) => {
                 const [a, b] = key.split("_").map(Number);
+                const tokenA = vocabMap.get(a) ?? "?";
+                const tokenB = vocabMap.get(b) ?? "?";
+                const preview = tokenA + tokenB;
+
                 return (
                   <div
                     key={key}
                     className={classNames(
-                      "flex cursor-pointer justify-between rounded px-2 py-1 hover:bg-blue-100",
+                      "cursor-pointer rounded px-2 py-1 hover:bg-blue-100",
                       key === hoveredPairKey && "bg-blue-200"
                     )}
                     onMouseEnter={() => setHoveredPair(key)}
                     onMouseLeave={() => setHoveredPair(null)}
                   >
-                    <span>
-                      ({a}, {b})
-                    </span>
-                    <span>{freq}</span>
+                    <div className="flex justify-between font-mono">
+                      <span>{`(${a} '${tokenA}', ${b} '${tokenB}')`}</span>
+                      <span>频率: {freq}</span>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {`→ 合并预览: '${preview}'`}
+                    </div>
                   </div>
                 );
               })}
