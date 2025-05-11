@@ -225,21 +225,15 @@ export default function EncodeDecodeView({
                   </div>
                 </div>
 
-                {current.merged && (
-                  <div className="text-green-700">
-                    ✅ 合并操作：{current.merged}
-                  </div>
-                )}
-
                 {current.reason && (
                   <div className="text-sm text-gray-700">
-                    📌 <strong>操作原因说明：</strong> {current.reason}
+                    <strong>操作原因说明：</strong> {current.reason}
                   </div>
                 )}
 
                 {current.nextHint && (
                   <div className="text-sm text-blue-700">
-                    📎 <strong>下一步提示：</strong> {current.nextHint}
+                    <strong>下一步提示：</strong> {current.nextHint}
                   </div>
                 )}
 
