@@ -61,13 +61,13 @@ export function TokenViewer(props: {
   return (
     <div className="space-y-4">
       <div className="flex gap-4">
-        <div className="flex-grow rounded-md border bg-slate-50 p-4 shadow-sm">
+        <div className="flex-grow rounded-md border bg-white p-4 shadow-sm">
           <p className="text-sm">Token count</p>
           <p className="text-lg">{tokenCount}</p>
         </div>
       </div>
 
-      <pre className="min-h-[128px] max-w-[100vw] overflow-auto whitespace-pre-wrap break-all rounded-md border bg-slate-50 p-4 shadow-sm">
+      <pre className="min-h-[128px] max-w-[100vw] overflow-auto whitespace-pre-wrap break-all rounded-md border bg-white p-4 shadow-sm">
         {props.data?.segments?.map(({ text }, idx) => (
           <span
             key={idx}
@@ -86,7 +86,7 @@ export function TokenViewer(props: {
         ))}
       </pre>
 
-      <pre className="min-h-[128px] max-w-[100vw] overflow-auto whitespace-pre-wrap break-all rounded-md border bg-slate-50 p-4 shadow-sm">
+      <pre className="min-h-[128px] max-w-[100vw] overflow-auto whitespace-pre-wrap break-all rounded-md border bg-white p-4 shadow-sm">
         {props.data && tokenCount > 0 && (
           <span className={props.isFetching ? "opacity-50" : ""}>
             {props.data.segments?.map((segment, segmentIdx) => (

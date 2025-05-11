@@ -1,5 +1,6 @@
 "use client";
 
+import { TokenViewer } from "@/components/bpe/TokenViewer";
 import { bytesToUnicode } from "@/utils/bpe";
 import classNames from "classnames";
 import { useState } from "react";
@@ -30,6 +31,7 @@ export default function EncodeDecodeView({
   encoder,
 }: EncodeDecodeViewProps) {
   const [inputText, setInputText] = useState("");
+
   const [steps, setSteps] = useState<Step[]>([]);
   const [stepIndex, setStepIndex] = useState(0);
   const [decodedText, setDecodedText] = useState("");
@@ -73,8 +75,8 @@ export default function EncodeDecodeView({
       });
   };
 
-  const handleEncode = () => {
-    const textBytes = Array.from(new TextEncoder().encode(inputText));
+  const handleEncode = (input: string) => {
+    const textBytes = Array.from(new TextEncoder().encode(input));
     const initTokens = textBytes.map(
       (b) => encoder.get(byteEncoder.get(b)!) ?? b
     );
@@ -168,107 +170,121 @@ export default function EncodeDecodeView({
         🧪 GPT-2 分词器编码与解码演示（基于 Encoder/Vocab）
       </h2>
 
-      <textarea
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        placeholder="请输入文本"
-        className="w-full rounded border p-2"
-        rows={3}
-      />
+      <div className="flex gap-4">
+        <div className="flex-1 space-y-6 ">
+          <textarea
+            value={inputText}
+            onChange={(e) => {
+              setInputText(e.target.value);
+              handleEncode(e.target.value);
+            }}
+            placeholder="请输入文本"
+            className="w-full resize-none rounded-md border p-2 outline-none"
+            rows={3}
+          />
 
-      <button
-        onClick={handleEncode}
-        className="rounded bg-blue-600 px-4 py-1 text-white hover:bg-blue-700"
-      >
-        开始编码与解码
-      </button>
-
-      {steps.length > 0 && (
-        <>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setStepIndex((s) => Math.max(0, s - 1))}
-              disabled={stepIndex === 0}
-              className="rounded border px-2 py-1 disabled:opacity-50"
-            >
-              ← 上一步
-            </button>
-            <div>
-              Step {stepIndex} / {steps.length - 1}
-            </div>
-            <button
-              onClick={() =>
-                setStepIndex((s) => Math.min(steps.length - 1, s + 1))
-              }
-              disabled={stepIndex === steps.length - 1}
-              className="rounded border px-2 py-1 disabled:opacity-50"
-            >
-              下一步 →
-            </button>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <strong>当前 Token 序列：</strong>
-              <div className="mt-1 flex flex-wrap gap-2">
-                {current.tokens.map((id, i) => (
-                  <span
-                    key={i}
-                    className={classNames(
-                      "rounded border px-2 py-1 text-xs",
-                      "bg-gray-50 hover:bg-yellow-100"
-                    )}
-                  >
-                    <strong>{id}</strong> ({vocab.get(id) ?? "?"})
-                  </span>
-                ))}
+          {steps.length > 0 && (
+            <>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setStepIndex((s) => Math.max(0, s - 1))}
+                  disabled={stepIndex === 0}
+                  className="rounded border px-2 py-1 disabled:opacity-50"
+                >
+                  ← 上一步
+                </button>
+                <div>
+                  Step {stepIndex} / {steps.length - 1}
+                </div>
+                <button
+                  onClick={() =>
+                    setStepIndex((s) => Math.min(steps.length - 1, s + 1))
+                  }
+                  disabled={stepIndex === steps.length - 1}
+                  className="rounded border px-2 py-1 disabled:opacity-50"
+                >
+                  下一步 →
+                </button>
               </div>
-            </div>
 
-            {current.merged && (
-              <div className="text-green-700">
-                ✅ 合并操作：{current.merged}
+              <div className="space-y-3">
+                <div>
+                  <strong>当前 Token 序列：</strong>
+                  <div className="mt-1 flex flex-wrap gap-2">
+                    {current.tokens.map((id, i) => (
+                      <span
+                        key={i}
+                        className={classNames(
+                          "rounded border px-2 py-1 text-xs",
+                          "bg-gray-50 hover:bg-yellow-100"
+                        )}
+                      >
+                        <strong>{id}</strong> ({vocab.get(id) ?? "?"})
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {current.merged && (
+                  <div className="text-green-700">
+                    ✅ 合并操作：{current.merged}
+                  </div>
+                )}
+
+                {current.reason && (
+                  <div className="text-sm text-gray-700">
+                    📌 <strong>操作原因说明：</strong> {current.reason}
+                  </div>
+                )}
+
+                {current.nextHint && (
+                  <div className="text-sm text-blue-700">
+                    📎 <strong>下一步提示：</strong> {current.nextHint}
+                  </div>
+                )}
+
+                {current.pairStats && (
+                  <div className="text-sm text-gray-600">
+                    <strong>📊 当前可合并对频率统计：</strong>
+                    <ul className="mt-1 list-inside list-disc space-y-1">
+                      {current.pairStats.map(
+                        ({ key, pair, freq, mergedStr, inEncoder }) => (
+                          <li key={key}>
+                            {`'${vocab.get(pair[0])}'_${vocab.get(pair[1])}`} →{" "}
+                            {`'${mergedStr}'`}，频率：{freq}
+                            {inEncoder ? " ✅" : " ❌"}
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
               </div>
-            )}
 
-            {current.reason && (
-              <div className="text-sm text-gray-700">
-                📌 <strong>操作原因说明：</strong> {current.reason}
+              <div className="border-t pt-2 text-sm">
+                <strong>解码结果：</strong>
+                <div className="mt-1 whitespace-pre-wrap text-blue-600">
+                  {decodedText}
+                </div>
               </div>
-            )}
-
-            {current.nextHint && (
-              <div className="text-sm text-blue-700">
-                📎 <strong>下一步提示：</strong> {current.nextHint}
-              </div>
-            )}
-
-            {current.pairStats && (
-              <div className="text-sm text-gray-600">
-                <strong>📊 当前可合并对频率统计：</strong>
-                <ul className="mt-1 list-inside list-disc space-y-1">
-                  {current.pairStats.map(
-                    ({ key, pair, freq, mergedStr, inEncoder }) => (
-                      <li key={key}>
-                        {`'${vocab.get(pair[0])}'_${vocab.get(pair[1])}`} →{" "}
-                        {`'${mergedStr}'`}，频率：{freq}
-                        {inEncoder ? " ✅" : " ❌"}
-                      </li>
-                    )
-                  )}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t pt-2 text-sm">
-            <strong>解码结果：</strong>
-            <div className="mt-1 whitespace-pre-wrap text-blue-600">
-              {decodedText}
-            </div>
-          </div>
-        </>
-      )}
+            </>
+          )}
+        </div>
+        <div className="w-[400px] max-w-full">
+          <TokenViewer
+            isFetching={false}
+            data={{
+              name: "Demo",
+              tokens: current?.tokens || [],
+              count: current?.tokens.length || 0,
+              segments: current?.tokens.map((id, idx) => ({
+                text: vocab.get(id) ?? "?",
+                tokens: [{ id, idx }],
+              })),
+            }}
+          />
+        </div>
+      </div>
     </div>
   );
 }
