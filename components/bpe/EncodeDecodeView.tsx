@@ -49,7 +49,6 @@ export default function EncodeDecodeView({
 }: EncodeDecodeViewProps) {
   const [inputText, setInputText] = useState("");
   const [steps, setSteps] = useState<Step[]>([]);
-  const [stepIndex, setStepIndex] = useState(0);
   const [decodedText, setDecodedText] = useState("");
   const [segmentsPreview, setSegmentsPreview] = useState<string[]>([]);
 
@@ -181,7 +180,6 @@ export default function EncodeDecodeView({
     }
 
     setSteps(allSteps);
-    setStepIndex(0);
     const result = new TextDecoder().decode(new Uint8Array(decodedBytes));
     setDecodedText(result);
   };
@@ -236,10 +234,10 @@ export default function EncodeDecodeView({
             className="rounded-md border bg-ctp-base p-4 text-ctp-text"
           >
             <h3 className="mb-2 font-semibold text-ctp-flamingo">
-              📌 分段："{segment}"
+              {`分段："${segment}"`}
             </h3>
             <div className="flex gap-4">
-              <div className="flex-1">
+              <div className="h-[420px] max-h-full flex-1 overflow-auto scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
                 {steps.map((step, index) => (
                   <div key={index} className="mb-4 border-b pb-4">
                     <div className="mb-2 text-sm font-semibold text-ctp-subtext0">
@@ -273,7 +271,8 @@ export default function EncodeDecodeView({
                             <li key={key}>
                               {"`"}
                               {vocab.get(pair[0])}
-                              {"`"}_{vocab.get(pair[1])} → '{mergedStr}'，频率：
+                              {"`"}_{vocab.get(pair[1])} → {`'${mergedStr}'`}
+                              ，频率：
                               {freq}
                               {inEncoder ? " ✅" : " ❌"}
                             </li>
@@ -284,7 +283,7 @@ export default function EncodeDecodeView({
                   </div>
                 ))}
               </div>
-              <div className="mt-4 w-[400px] max-w-full">
+              <div className="w-[400px] max-w-full">
                 <TokenViewer
                   isFetching={false}
                   data={{

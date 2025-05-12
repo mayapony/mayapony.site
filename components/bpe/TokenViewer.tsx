@@ -36,25 +36,12 @@ const COLORS = [
   "bg-teal-200",
 ];
 
-function encodeWhitespace(str: string) {
-  return str
-    .replaceAll(" ", "⋅")
-    .replaceAll("\t", "→")
-    .replaceAll("\f", "\\f\f")
-    .replaceAll("\b", "\\b\b")
-    .replaceAll("\v", "\\v\v")
-    .replaceAll("\r", "\\r\r")
-    .replaceAll("\n", "\\n\n")
-    .replaceAll("\\r\r\\n\n", "\\r\\n\r\n");
-}
-
 export function TokenViewer(props: {
   isFetching: boolean;
   model?: string;
   data?: TokenizerResult;
 }) {
   const [indexHover, setIndexHover] = useState<number | null>(null);
-  const [showWhitespace, setShowWhitespace] = useState(false);
 
   const tokenCount = props.data?.tokens?.length ?? 0;
 
@@ -79,9 +66,7 @@ export function TokenViewer(props: {
                 : ""
             }
           >
-            {showWhitespace || indexHover === idx
-              ? encodeWhitespace(text)
-              : text}
+            {text}
           </span>
         ))}
       </pre>
@@ -112,17 +97,6 @@ export function TokenViewer(props: {
           </span>
         )}
       </pre>
-
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          checked={showWhitespace}
-          onChange={() => setShowWhitespace((v) => !v)}
-        />
-        <label className="text-sm font-medium leading-none">
-          Show whitespace
-        </label>
-      </div>
     </div>
   );
 }
