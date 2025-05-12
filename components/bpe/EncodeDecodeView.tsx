@@ -1,8 +1,7 @@
 "use client";
 
 import { TokenViewer } from "@/components/bpe/TokenViewer";
-import { bytesToUnicode } from "@/utils/bpe";
-import classNames from "classnames";
+import { bytesToUnicode, tokenizeWithGpt2Pattern } from "@/utils/bpe";
 import { useState } from "react";
 
 interface EncodeDecodeViewProps {
@@ -12,6 +11,7 @@ interface EncodeDecodeViewProps {
 
 interface Step {
   step: number;
+  segment: string;
   tokens: number[];
   pairStats: Array<{
     pair: [number, number];
@@ -26,15 +26,32 @@ interface Step {
   nextHint?: string;
 }
 
+const COLORS = [
+  "bg-ctp-rosewater",
+  "bg-ctp-flamingo",
+  "bg-ctp-pink",
+  "bg-ctp-mauve",
+  "bg-ctp-red",
+  "bg-ctp-maroon",
+  "bg-ctp-peach",
+  "bg-ctp-yellow",
+  "bg-ctp-green",
+  "bg-ctp-teal",
+  "bg-ctp-sky",
+  "bg-ctp-sapphire",
+  "bg-ctp-blue",
+  "bg-ctp-lavender",
+];
+
 export default function EncodeDecodeView({
   vocab,
   encoder,
 }: EncodeDecodeViewProps) {
   const [inputText, setInputText] = useState("");
-
   const [steps, setSteps] = useState<Step[]>([]);
   const [stepIndex, setStepIndex] = useState(0);
   const [decodedText, setDecodedText] = useState("");
+  const [segmentsPreview, setSegmentsPreview] = useState<string[]>([]);
 
   const byteEncoder = bytesToUnicode();
   const unicodeToByte = new Map<string, number>();
@@ -76,207 +93,221 @@ export default function EncodeDecodeView({
   };
 
   const handleEncode = (input: string) => {
-    const textBytes = Array.from(new TextEncoder().encode(input));
-    const initTokens = textBytes.map(
-      (b) => encoder.get(byteEncoder.get(b)!) ?? b
-    );
+    const segments = tokenizeWithGpt2Pattern(input);
+    setSegmentsPreview(segments);
+    const allSteps: Step[] = [];
+    const finalTokens: number[] = [];
+    const decodedBytes: number[] = [];
+    let globalStep = 0;
 
-    let tokens = [...initTokens];
-    let step = 0;
-    const history: Step[] = [];
+    for (const segment of segments) {
+      const textBytes = Array.from(new TextEncoder().encode(segment));
+      const initTokens = textBytes.map(
+        (b) => encoder.get(byteEncoder.get(b)!) ?? b
+      );
 
-    while (true) {
-      const pairStats = getPairStats(tokens, vocab);
-      const validStats = pairStats.filter(({ inEncoder }) => inEncoder);
+      let tokens = [...initTokens];
+      let step = 0;
 
-      const stepData: Step = {
-        step,
-        tokens: [...tokens],
-        pairStats,
-      };
+      while (true) {
+        const pairStats = getPairStats(tokens, vocab);
+        const validStats = pairStats.filter(({ inEncoder }) => inEncoder);
 
-      if (step === 0) {
-        stepData.reason =
-          "初始化：将每个字节转换为 Unicode 字符并映射为 Token ID。";
+        const stepData: Step = {
+          step: globalStep++,
+          segment,
+          tokens: [...finalTokens, ...tokens],
+          pairStats,
+        };
+
+        if (step === 0) {
+          stepData.reason = `初始化段落 '${segment}'：将每个字节转换为 Unicode 字符并映射为 Token ID。`;
+        }
+
+        if (validStats.length === 0) {
+          stepData.nextHint = `段落 '${segment}' 无可合并对，编码完成。`;
+          allSteps.push(stepData);
+          break;
+        }
+
+        const best = validStats[0];
+        const newId = encoder.get(best.mergedStr)!;
+
+        stepData.merged = `${vocab.get(best.pair[0])} + ${vocab.get(
+          best.pair[1]
+        )} = ${best.mergedStr}`;
+        stepData.newTokenId = newId;
+        stepData.reason = `选择频率最高的字符对 '${vocab.get(best.pair[0])}' (${
+          best.pair[0]
+        }) 与 '${vocab.get(best.pair[1])}' (${best.pair[1]})，合并为 '${
+          best.mergedStr
+        }'。`;
+        stepData.nextHint = `下一步将合并 '${vocab.get(
+          best.pair[0]
+        )}' 与 '${vocab.get(best.pair[1])}' 为 '${
+          best.mergedStr
+        }'，对应 ID 为 ${newId}。`;
+
+        allSteps.push(stepData);
+
+        const newTokens: number[] = [];
+        let i = 0;
+        while (i < tokens.length) {
+          if (
+            i < tokens.length - 1 &&
+            tokens[i] === best.pair[0] &&
+            tokens[i + 1] === best.pair[1]
+          ) {
+            newTokens.push(newId);
+            i += 2;
+          } else {
+            newTokens.push(tokens[i]);
+            i++;
+          }
+        }
+
+        tokens = newTokens;
+        step++;
       }
 
-      if (validStats.length === 0) {
-        stepData.nextHint = "无可合并对，编码完成。";
-        history.push(stepData);
-        break;
-      }
-
-      const best = validStats[0];
-      const newId = encoder.get(best.mergedStr)!;
-
-      stepData.merged = `${vocab.get(best.pair[0])} + ${vocab.get(
-        best.pair[1]
-      )} = ${best.mergedStr}`;
-      stepData.newTokenId = newId;
-      stepData.reason = `选择频率最高的字符对 '${vocab.get(best.pair[0])}' (${
-        best.pair[0]
-      }) 与 '${vocab.get(best.pair[1])}' (${best.pair[1]})，合并为 '${
-        best.mergedStr
-      }'。`;
-      stepData.nextHint = `下一步将合并 '${vocab.get(
-        best.pair[0]
-      )}' 与 '${vocab.get(best.pair[1])}' 为 '${
-        best.mergedStr
-      }'，对应 ID 为 ${newId}。`;
-
-      history.push(stepData);
-
-      const newTokens: number[] = [];
-      let i = 0;
-      while (i < tokens.length) {
-        if (
-          i < tokens.length - 1 &&
-          tokens[i] === best.pair[0] &&
-          tokens[i + 1] === best.pair[1]
-        ) {
-          newTokens.push(newId);
-          i += 2;
-        } else {
-          newTokens.push(tokens[i]);
-          i++;
+      finalTokens.push(...tokens);
+      for (const id of tokens) {
+        const chars = vocab.get(id) ?? "";
+        for (const c of chars) {
+          const byte = unicodeToByte.get(c);
+          if (byte !== undefined) decodedBytes.push(byte);
         }
       }
-
-      tokens = newTokens;
-      step++;
     }
 
-    setSteps(history);
+    setSteps(allSteps);
     setStepIndex(0);
-
-    const decodedBytes: number[] = [];
-    for (const id of tokens) {
-      const chars = vocab.get(id) ?? "";
-      for (const c of chars) {
-        const byte = unicodeToByte.get(c);
-        if (byte !== undefined) decodedBytes.push(byte);
-      }
-    }
-
     const result = new TextDecoder().decode(new Uint8Array(decodedBytes));
     setDecodedText(result);
   };
 
-  const current = steps[stepIndex];
+  const groupedBySegment = steps.reduce((acc, step) => {
+    if (!acc[step.segment]) acc[step.segment] = [];
+    acc[step.segment].push(step);
+    return acc;
+  }, {} as Record<string, Step[]>);
 
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">
-        🧪 GPT-2 分词器编码与解码演示（基于 Encoder/Vocab）
+        🧪 GPT-2 分词器编码与解码演示（分段显示）
       </h2>
 
-      <div className="flex gap-4">
-        <div className="flex-1 space-y-6 ">
-          <textarea
-            value={inputText}
-            onChange={(e) => {
-              setInputText(e.target.value);
-              handleEncode(e.target.value);
-            }}
-            placeholder="请输入文本"
-            className="w-full resize-none rounded-md border p-2 outline-none"
-            rows={3}
-          />
+      <textarea
+        value={inputText}
+        onChange={(e) => {
+          setInputText(e.target.value);
+          handleEncode(e.target.value);
+        }}
+        placeholder="请输入文本"
+        className="w-full resize-none rounded-md border p-2 outline-none"
+        rows={3}
+      />
 
-          {steps.length > 0 && (
-            <>
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setStepIndex((s) => Math.max(0, s - 1))}
-                  disabled={stepIndex === 0}
-                  className="rounded border px-2 py-1 disabled:opacity-50"
-                >
-                  ← 上一步
-                </button>
-                <div>
-                  Step {stepIndex} / {steps.length - 1}
-                </div>
-                <button
-                  onClick={() =>
-                    setStepIndex((s) => Math.min(steps.length - 1, s + 1))
-                  }
-                  disabled={stepIndex === steps.length - 1}
-                  className="rounded border px-2 py-1 disabled:opacity-50"
-                >
-                  下一步 →
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <strong>当前 Token 序列：</strong>
-                  <div className="mt-1 flex flex-wrap gap-2">
-                    {current.tokens.map((id, i) => (
-                      <span
-                        key={i}
-                        className={classNames(
-                          "rounded border px-2 py-1 text-xs",
-                          "bg-gray-50 hover:bg-yellow-100"
-                        )}
-                      >
-                        <strong>{id}</strong> ({vocab.get(id) ?? "?"})
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {current.reason && (
-                  <div className="text-sm text-gray-700">
-                    <strong>操作原因说明：</strong> {current.reason}
-                  </div>
-                )}
-
-                {current.nextHint && (
-                  <div className="text-sm text-blue-700">
-                    <strong>下一步提示：</strong> {current.nextHint}
-                  </div>
-                )}
-
-                {current.pairStats && (
-                  <div className="text-sm text-gray-600">
-                    <strong>📊 当前可合并对频率统计：</strong>
-                    <ul className="mt-1 list-inside list-disc space-y-1">
-                      {current.pairStats.map(
-                        ({ key, pair, freq, mergedStr, inEncoder }) => (
-                          <li key={key}>
-                            {`'${vocab.get(pair[0])}'_${vocab.get(pair[1])}`} →{" "}
-                            {`'${mergedStr}'`}，频率：{freq}
-                            {inEncoder ? " ✅" : " ❌"}
-                          </li>
-                        )
-                      )}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <div className="border-t pt-2 text-sm">
-                <strong>解码结果：</strong>
-                <div className="mt-1 whitespace-pre-wrap text-blue-600">
-                  {decodedText}
-                </div>
-              </div>
-            </>
-          )}
+      {segmentsPreview.length > 0 && (
+        <div className="rounded bg-ctp-surface0 p-3 text-sm">
+          <strong className="text-ctp-subtext1">🔍 正则匹配结果：</strong>
+          <div className="mt-2 flex flex-wrap gap-1">
+            {segmentsPreview.map((seg, i) => (
+              <span
+                key={i}
+                className={`rounded px-2 py-1 text-xs text-ctp-base ${
+                  COLORS[i % COLORS.length]
+                }`}
+              >
+                {Array.from(new TextEncoder().encode(seg))
+                  .map((b) => byteEncoder.get(b) ?? "?")
+                  .join("")}
+              </span>
+            ))}
+          </div>
         </div>
-        <div className="w-[400px] max-w-full">
-          <TokenViewer
-            isFetching={false}
-            data={{
-              name: "Demo",
-              tokens: current?.tokens || [],
-              count: current?.tokens.length || 0,
-              segments: current?.tokens.map((id, idx) => ({
-                text: vocab.get(id) ?? "?",
-                tokens: [{ id, idx }],
-              })),
-            }}
-          />
+      )}
+
+      <div className="space-y-6">
+        {Object.entries(groupedBySegment).map(([segment, steps]) => (
+          <div
+            key={segment}
+            className="rounded-md border bg-ctp-base p-4 text-ctp-text"
+          >
+            <h3 className="mb-2 font-semibold text-ctp-flamingo">
+              📌 分段："{segment}"
+            </h3>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                {steps.map((step, index) => (
+                  <div key={index} className="mb-4 border-b pb-4">
+                    <div className="mb-2 text-sm font-semibold text-ctp-subtext0">
+                      Step {step.step}：{step.reason}
+                    </div>
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {step.tokens.map((id, i) => (
+                        <span
+                          key={i}
+                          className="rounded border border-ctp-surface2 bg-ctp-surface1 px-2 py-1 text-xs"
+                        >
+                          <strong>{id}</strong> ({vocab.get(id) ?? "?"})
+                        </span>
+                      ))}
+                    </div>
+                    {step.merged && (
+                      <div className="text-sm text-ctp-green">
+                        ✅ 合并操作：{step.merged}
+                      </div>
+                    )}
+                    {step.nextHint && (
+                      <div className="text-sm text-ctp-sky">
+                        📎 下一步提示：{step.nextHint}
+                      </div>
+                    )}
+                    <div className="text-sm text-ctp-overlay1">
+                      <strong>📊 当前可合并对频率统计：</strong>
+                      <ul className="mt-1 list-disc pl-5">
+                        {step.pairStats.map(
+                          ({ key, pair, freq, mergedStr, inEncoder }) => (
+                            <li key={key}>
+                              {"`"}
+                              {vocab.get(pair[0])}
+                              {"`"}_{vocab.get(pair[1])} → '{mergedStr}'，频率：
+                              {freq}
+                              {inEncoder ? " ✅" : " ❌"}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 w-[400px] max-w-full">
+                <TokenViewer
+                  isFetching={false}
+                  data={{
+                    name: segment,
+                    tokens: steps[steps.length - 1]?.tokens ?? [],
+                    count: steps[steps.length - 1]?.tokens.length ?? 0,
+                    segments:
+                      steps[steps.length - 1]?.tokens.map((id, idx) => ({
+                        text: vocab.get(id) ?? "?",
+                        tokens: [{ id, idx }],
+                      })) ?? [],
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t pt-2 text-sm">
+        <strong>解码结果：</strong>
+        <div className="mt-1 whitespace-pre-wrap text-ctp-sky">
+          {decodedText}
         </div>
       </div>
     </div>
