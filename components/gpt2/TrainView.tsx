@@ -336,7 +336,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
             {/* Encoder */}
             <div className="max-h-[300px] w-1/2 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
               <h4 className="mb-2 font-semibold text-blue-700">
-                📘 Encoder 映射表
+                Encoder 映射表
               </h4>
               <div className="grid grid-cols-1 gap-2">
                 {(stepIndex === 0
@@ -368,7 +368,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
             {/* Vocab */}
             <div className="max-h-[300px] w-1/2 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
-              <h4 className="mb-2 font-semibold text-green-700">📗 Vocab 表</h4>
+              <h4 className="mb-2 font-semibold text-green-700">Vocab 表</h4>
               <div className="grid grid-cols-1 gap-2">
                 {(stepIndex === 0
                   ? initialVocabEntries

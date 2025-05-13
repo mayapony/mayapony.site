@@ -193,7 +193,7 @@ export default function EncodeDecodeView({
   return (
     <div className="space-y-6">
       <h2 className="text-xl font-semibold">
-        🧪 GPT-2 分词器编码与解码演示（分段显示）
+        GPT-2 分词器编码与解码演示（分段显示）
       </h2>
 
       <textarea
@@ -209,7 +209,7 @@ export default function EncodeDecodeView({
 
       {segmentsPreview.length > 0 && (
         <div className="rounded bg-ctp-surface0 p-3 text-sm">
-          <strong className="text-ctp-subtext1">🔍 正则匹配结果：</strong>
+          <strong className="text-ctp-subtext1">正则匹配结果：</strong>
           <div className="mt-2 flex flex-wrap gap-1">
             {segmentsPreview.map((seg, i) => (
               <span
@@ -249,22 +249,23 @@ export default function EncodeDecodeView({
                           key={i}
                           className="rounded border border-ctp-surface2 bg-ctp-surface1 px-2 py-1 text-xs"
                         >
-                          <strong>{id}</strong> ({vocab.get(id) ?? "?"})
+                          <strong>{id}</strong> (
+                          {vocab.get(id) ?? byteEncoder.get(id) ?? "?"})
                         </span>
                       ))}
                     </div>
                     {step.merged && (
                       <div className="text-sm text-ctp-green">
-                        ✅ 合并操作：{step.merged}
+                        合并操作：{step.merged}
                       </div>
                     )}
                     {step.nextHint && (
                       <div className="text-sm text-ctp-sky">
-                        📎 下一步提示：{step.nextHint}
+                        下一步提示：{step.nextHint}
                       </div>
                     )}
                     <div className="text-sm text-ctp-overlay1">
-                      <strong>📊 当前可合并对频率统计：</strong>
+                      <strong>当前可合并对频率统计：</strong>
                       <ul className="mt-1 list-disc pl-5">
                         {step.pairStats.map(
                           ({ key, pair, freq, mergedStr, inEncoder }) => (
@@ -292,7 +293,7 @@ export default function EncodeDecodeView({
                     count: steps[steps.length - 1]?.tokens.length ?? 0,
                     segments:
                       steps[steps.length - 1]?.tokens.map((id, idx) => ({
-                        text: vocab.get(id) ?? "?",
+                        text: vocab.get(id) ?? byteEncoder.get(id) ?? "?",
                         tokens: [{ id, idx }],
                       })) ?? [],
                   }}
