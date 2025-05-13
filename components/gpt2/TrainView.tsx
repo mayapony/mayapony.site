@@ -3,6 +3,7 @@
 
 import {
   bytesToUnicode,
+  decodeBpeTokenString,
   getColorForId,
   getStats,
   mergeSequences,
@@ -45,11 +46,23 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     [number, string][]
   >([]);
 
+  const byteEncoder = bytesToUnicode();
+  const byteDecoder = new Map<string, number>();
+  for (const [b, c] of byteEncoder.entries()) {
+    byteDecoder.set(c, b);
+  }
+
   const runBPETraining = () => {
     const byteEncoder = bytesToUnicode();
 
     const vocab = new Map<number, string>();
     const encoder = new Map<string, number>();
+
+    for (const [b, c] of byteEncoder.entries()) {
+      encoder.set(c, b);
+      vocab.set(b, c);
+    }
+
     const newSteps: MergeStep[] = [];
 
     const usedByteSet = new Set<number>(); // 只记录输入中用到的 byte
@@ -248,7 +261,8 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                         <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded bg-black px-2 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100">
                           Token ID: {id}
                           <br />
-                          Value: {`'${tokenStr}'`}
+                          解码结果:{" "}
+                          {`'${decodeBpeTokenString(tokenStr, byteDecoder)}'`}
                           {mergedFrom && (
                             <>
                               <br />
@@ -302,6 +316,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                 const tokenA = vocabMap.get(a) ?? "?";
                 const tokenB = vocabMap.get(b) ?? "?";
                 const preview = tokenA + tokenB;
+                const decoded = decodeBpeTokenString(preview, byteDecoder);
 
                 return (
                   <div
@@ -320,6 +335,9 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                     <div className="text-xs text-gray-500">
                       {`→ 合并预览: '${preview}'`}
                     </div>
+                    <div className="text-xs text-gray-500">
+                      {`→ 解码预览: '${decoded}'`}
+                    </div>
                   </div>
                 );
               })}
@@ -330,7 +348,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       {steps.length > 0 && (
         <div className="col-span-3 mt-8 border-t pt-4 text-sm">
           <h3 className="mb-4 text-lg font-semibold">
-            🧬 当前 Step {stepIndex} 的编码与词汇表状态
+            当前 Step {stepIndex} 的编码与词汇表状态
           </h3>
           <div className="flex gap-6">
             {/* Encoder */}
@@ -359,7 +377,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                       className="flex justify-between rounded border p-2 hover:bg-gray-50"
                     >
                       <span className="text-gray-700">
-                        <code>{token}</code> → <strong>{id}</strong>
+                        <code>{`${token} - (${decodeBpeTokenString(
+                          token,
+                          byteDecoder
+                        )})`}</code>{" "}
+                        → <strong>{id}</strong>
                       </span>
                     </div>
                   ))}
@@ -391,7 +413,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                       className="flex justify-between rounded border p-2 hover:bg-gray-50"
                     >
                       <span className="text-gray-700">
-                        <strong>{id}</strong> → <code>{token}</code>
+                        <strong>{id}</strong> →{" "}
+                        <code>{`${token} - (${decodeBpeTokenString(
+                          token,
+                          byteDecoder
+                        )})`}</code>
                       </span>
                     </div>
                   ))}

@@ -1,7 +1,11 @@
 "use client";
 
 import { TokenViewer } from "@/components/gpt2/TokenViewer";
-import { bytesToUnicode, tokenizeWithGpt2Pattern } from "@/utils/bpe";
+import {
+  bytesToUnicode,
+  decodeBpeTokenString,
+  tokenizeWithGpt2Pattern,
+} from "@/utils/bpe";
 import { useState } from "react";
 
 interface EncodeDecodeViewProps {
@@ -218,12 +222,16 @@ export default function EncodeDecodeView({
                   COLORS[i % COLORS.length]
                 }`}
               >
-                {Array.from(new TextEncoder().encode(seg))
+                {`${Array.from(new TextEncoder().encode(seg))
                   .map((b) => byteEncoder.get(b) ?? "?")
-                  .join("")}
+                  .join("")} - (${seg})`}
               </span>
             ))}
           </div>
+          <code>
+            {`(/'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N\}+| ?[^\\s\\p{L}
+            \\p{N}]+|\\s+(?!\\S)|\\s+/gu)`}
+          </code>
         </div>
       )}
 
@@ -293,7 +301,10 @@ export default function EncodeDecodeView({
                     count: steps[steps.length - 1]?.tokens.length ?? 0,
                     segments:
                       steps[steps.length - 1]?.tokens.map((id, idx) => ({
-                        text: vocab.get(id) ?? byteEncoder.get(id) ?? "?",
+                        text: decodeBpeTokenString(
+                          vocab.get(id) || "?",
+                          unicodeToByte
+                        ),
                         tokens: [{ id, idx }],
                       })) ?? [],
                   }}

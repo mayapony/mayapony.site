@@ -30,6 +30,30 @@ export const tokenizeWithGpt2Pattern = (text: string): string[] => {
   return Array.from(text.matchAll(regex)).map((m) => m[0]);
 };
 
+export function decodeBpeTokenString(
+  tokenStr: string,
+  byteDecoder: Map<string, number>
+): string {
+  console.log({ tokenStr });
+  const bytes: number[] = [];
+
+  for (const ch of tokenStr) {
+    const byte = byteDecoder.get(ch);
+    if (byte !== undefined) {
+      bytes.push(byte);
+    } else {
+      return tokenStr;
+    }
+  }
+
+  try {
+    const decoded = new TextDecoder().decode(new Uint8Array(bytes));
+    return decoded.includes("�") ? tokenStr : decoded;
+  } catch {
+    return tokenStr;
+  }
+}
+
 export const bytesToUnicode = (): Map<number, string> => {
   const bs: number[] = [];
   const cs: number[] = [];
