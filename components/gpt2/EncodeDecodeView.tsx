@@ -204,9 +204,7 @@ export default function EncodeDecodeView({
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold">
-        GPT-2 分词器编码与解码演示（分段显示）
-      </h2>
+      <h2 className="text-xl font-semibold">GPT-2 分词器编码演示</h2>
 
       <textarea
         value={inputText}
@@ -236,6 +234,9 @@ export default function EncodeDecodeView({
               </span>
             ))}
           </div>
+          <code>
+            {`(/'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N\}+| ?[^\\s\\p{L}\\p{N}]+|\\s+(?!\\S)|\\s+/gu)`}
+          </code>
         </div>
       )}
 
