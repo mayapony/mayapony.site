@@ -269,18 +269,8 @@ export default function EncodeDecodeView({
                         </span>
                       ))}
                     </div>
-                    {step.merged && (
-                      <div className="text-sm text-ctp-green">
-                        合并操作：{step.merged}
-                      </div>
-                    )}
-                    {step.nextHint && (
-                      <div className="text-sm text-ctp-sky">
-                        下一步提示：{step.nextHint}
-                      </div>
-                    )}
                     <div className="text-sm text-ctp-overlay1">
-                      <strong>当前可合并对频率统计：</strong>
+                      <strong>当前可合并对：</strong>
                       <table className="mt-2 w-full border-collapse text-left text-xs">
                         <thead>
                           <tr className="border-b">
@@ -313,6 +303,16 @@ export default function EncodeDecodeView({
                         </tbody>
                       </table>
                     </div>
+                    {step.merged && (
+                      <div className="text-sm text-ctp-green">
+                        合并操作：{step.merged}
+                      </div>
+                    )}
+                    {step.nextHint && (
+                      <div className="text-sm text-ctp-sky">
+                        下一步提示：{step.nextHint}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
