@@ -5,21 +5,21 @@ import TrainView from "@/components/gpt2/TrainView";
 import { useState } from "react";
 
 export default function BpePage() {
-  const [vocabMap, setVocabMap] = useState<Map<number, string>>(new Map());
+  const [vocab, setVocab] = useState<Array<[string, string]>>([]);
   const [encoderMap, setEncoderMap] = useState<Map<string, number>>(new Map());
 
   return (
     <div className="space-y-8 p-6">
       <TrainView
         onMergesReady={(vocab, encoder) => {
-          setVocabMap(vocab);
+          setVocab(vocab);
           setEncoderMap(encoder);
         }}
       />
 
-      {vocabMap.size > 0 && (
+      {vocab.length > 0 && (
         <div className="border-t pt-8">
-          <EncodeDecodeView vocab={vocabMap} encoder={encoderMap} />
+          <EncodeDecodeView vocab={vocab} encoder={encoderMap} />
         </div>
       )}
     </div>

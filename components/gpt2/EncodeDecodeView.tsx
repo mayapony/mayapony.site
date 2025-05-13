@@ -1,3 +1,4 @@
+// components/EncodeDecodeView.tsx
 "use client";
 
 import { TokenViewer } from "@/components/gpt2/TokenViewer";
@@ -7,28 +8,6 @@ import {
   tokenizeWithGpt2Pattern,
 } from "@/utils/bpe";
 import { useState } from "react";
-
-interface EncodeDecodeViewProps {
-  vocab: Map<number, string>;
-  encoder: Map<string, number>;
-}
-
-interface Step {
-  step: number;
-  segment: string;
-  tokens: number[];
-  pairStats: Array<{
-    pair: [number, number];
-    freq: number;
-    key: string;
-    mergedStr: string;
-    inEncoder: boolean;
-  }>;
-  merged?: string;
-  newTokenId?: number;
-  reason?: string;
-  nextHint?: string;
-}
 
 const COLORS = [
   "bg-ctp-rosewater",
@@ -47,6 +26,29 @@ const COLORS = [
   "bg-ctp-lavender",
 ];
 
+interface EncodeDecodeViewProps {
+  vocab: Array<[string, string]>; // 按照顺序的 vocab 合并对
+  encoder: Map<string, number>; // token 字符串 -> id
+}
+
+interface Step {
+  step: number;
+  segment: string;
+  tokens: number[];
+  pairStats: Array<{
+    pair: [number, number];
+    freq: number;
+    key: string;
+    mergedStr: string;
+    canMerge: boolean;
+    vocabIndex: number;
+  }>;
+  merged?: string;
+  newTokenId?: number;
+  reason?: string;
+  nextHint?: string;
+}
+
 export default function EncodeDecodeView({
   vocab,
   encoder,
@@ -62,10 +64,17 @@ export default function EncodeDecodeView({
     unicodeToByte.set(char, byte);
   }
 
-  const getPairStats = (
-    tokens: number[],
-    vocab: Map<number, string>
-  ): Step["pairStats"] => {
+  const tokenIdToString = new Map<number, string>();
+  for (const [str, id] of encoder.entries()) {
+    tokenIdToString.set(id, str);
+  }
+
+  const vocabIndex = new Map<string, number>();
+  vocab.forEach(([a, b], i) => {
+    vocabIndex.set(`${a}_${b}`, i);
+  });
+
+  const getPairStats = (tokens: number[]): Step["pairStats"] => {
     const stats = new Map<string, { pair: [number, number]; freq: number }>();
     for (let i = 0; i < tokens.length - 1; i++) {
       const pair: [number, number] = [tokens[i], tokens[i + 1]];
@@ -77,21 +86,31 @@ export default function EncodeDecodeView({
     }
     return Array.from(stats.values())
       .map(({ pair, freq }) => {
-        const mergedStr =
-          (vocab.get(pair[0]) || "") + (vocab.get(pair[1]) || "");
-        const inEncoder = encoder.has(mergedStr);
+        const left = tokenIdToString.get(pair[0]) ?? "";
+        const right = tokenIdToString.get(pair[1]) ?? "";
+        const mergedStr = left + right;
+        const mergeKey = `${left}_${right}`;
+        const canMerge = vocabIndex.has(mergeKey);
+        const vocabRank = vocabIndex.get(mergeKey);
         return {
           pair,
           freq,
           key: `${pair[0]}_${pair[1]}`,
           mergedStr,
-          inEncoder,
+          canMerge,
+          vocabIndex: vocabRank ?? Infinity,
         };
       })
       .sort((a, b) => {
-        if (a.inEncoder && !b.inEncoder) return -1;
-        if (!a.inEncoder && b.inEncoder) return 1;
-        return b.freq - a.freq;
+        if (a.canMerge && b.canMerge) {
+          return a.vocabIndex - b.vocabIndex;
+        } else if (a.canMerge) {
+          return -1;
+        } else if (b.canMerge) {
+          return 1;
+        } else {
+          return b.freq - a.freq;
+        }
       });
   };
 
@@ -113,8 +132,8 @@ export default function EncodeDecodeView({
       let step = 0;
 
       while (true) {
-        const pairStats = getPairStats(tokens, vocab);
-        const validStats = pairStats.filter(({ inEncoder }) => inEncoder);
+        const pairStats = getPairStats(tokens);
+        const validStats = pairStats.filter(({ canMerge }) => canMerge);
 
         const stepData: Step = {
           step: globalStep++,
@@ -124,11 +143,11 @@ export default function EncodeDecodeView({
         };
 
         if (step === 0) {
-          stepData.reason = `初始化段落 '${segment}'：将每个字节转换为 Unicode 字符并映射为 Token ID。`;
+          stepData.reason = `初始化 '${segment}'，从字节映射 token。`;
         }
 
         if (validStats.length === 0) {
-          stepData.nextHint = `段落 '${segment}' 无可合并对，编码完成。`;
+          stepData.nextHint = `无合并项，结束段 '${segment}'。`;
           allSteps.push(stepData);
           break;
         }
@@ -136,20 +155,10 @@ export default function EncodeDecodeView({
         const best = validStats[0];
         const newId = encoder.get(best.mergedStr)!;
 
-        stepData.merged = `${vocab.get(best.pair[0])} + ${vocab.get(
-          best.pair[1]
-        )} = ${best.mergedStr}`;
+        stepData.merged = `${best.mergedStr}`;
         stepData.newTokenId = newId;
-        stepData.reason = `选择频率最高的字符对 '${vocab.get(best.pair[0])}' (${
-          best.pair[0]
-        }) 与 '${vocab.get(best.pair[1])}' (${best.pair[1]})，合并为 '${
-          best.mergedStr
-        }'。`;
-        stepData.nextHint = `下一步将合并 '${vocab.get(
-          best.pair[0]
-        )}' 与 '${vocab.get(best.pair[1])}' 为 '${
-          best.mergedStr
-        }'，对应 ID 为 ${newId}。`;
+        stepData.reason = `合并 ${best.mergedStr}，优先级（index）=${best.vocabIndex}`;
+        stepData.nextHint = `下一步继续查找优先级最小的合并对。`;
 
         allSteps.push(stepData);
 
@@ -175,7 +184,7 @@ export default function EncodeDecodeView({
 
       finalTokens.push(...tokens);
       for (const id of tokens) {
-        const chars = vocab.get(id) ?? "";
+        const chars = tokenIdToString.get(id) ?? "";
         for (const c of chars) {
           const byte = unicodeToByte.get(c);
           if (byte !== undefined) decodedBytes.push(byte);
@@ -184,8 +193,7 @@ export default function EncodeDecodeView({
     }
 
     setSteps(allSteps);
-    const result = new TextDecoder().decode(new Uint8Array(decodedBytes));
-    setDecodedText(result);
+    setDecodedText(new TextDecoder().decode(new Uint8Array(decodedBytes)));
   };
 
   const groupedBySegment = steps.reduce((acc, step) => {
@@ -228,10 +236,6 @@ export default function EncodeDecodeView({
               </span>
             ))}
           </div>
-          <code>
-            {`(/'s|'t|'re|'ve|'m|'ll|'d| ?\\p{L}+| ?\\p{N\}+| ?[^\\s\\p{L}
-            \\p{N}]+|\\s+(?!\\S)|\\s+/gu)`}
-          </code>
         </div>
       )}
 
@@ -258,7 +262,10 @@ export default function EncodeDecodeView({
                           className="rounded border border-ctp-surface2 bg-ctp-surface1 px-2 py-1 text-xs"
                         >
                           <strong>{id}</strong> (
-                          {vocab.get(id) ?? byteEncoder.get(id) ?? "?"})
+                          {tokenIdToString.get(id) ??
+                            byteEncoder.get(id) ??
+                            "?"}
+                          )
                         </span>
                       ))}
                     </div>
@@ -274,20 +281,37 @@ export default function EncodeDecodeView({
                     )}
                     <div className="text-sm text-ctp-overlay1">
                       <strong>当前可合并对频率统计：</strong>
-                      <ul className="mt-1 list-disc pl-5">
-                        {step.pairStats.map(
-                          ({ key, pair, freq, mergedStr, inEncoder }) => (
-                            <li key={key}>
-                              {"`"}
-                              {vocab.get(pair[0])}
-                              {"`"}_{vocab.get(pair[1])} → {`'${mergedStr}'`}
-                              ，频率：
-                              {freq}
-                              {inEncoder ? " ✅" : " ❌"}
-                            </li>
-                          )
-                        )}
-                      </ul>
+                      <table className="mt-2 w-full border-collapse text-left text-xs">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="pr-4">Pair</th>
+                            <th className="pr-4">Merged</th>
+                            <th className="pr-4">可合并</th>
+                            <th className="pr-4">优先级 (Index)</th>
+                            <th className="pr-4">频率</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {step.pairStats.map(
+                            ({
+                              key,
+                              pair,
+                              freq,
+                              mergedStr,
+                              canMerge,
+                              vocabIndex,
+                            }) => (
+                              <tr key={key} className="border-b">
+                                <td>{`${pair[0]}_${pair[1]}`}</td>
+                                <td>{mergedStr}</td>
+                                <td>{canMerge ? "✅" : "❌"}</td>
+                                <td>{canMerge ? vocabIndex : "-"}</td>
+                                <td>{freq}</td>
+                              </tr>
+                            )
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 ))}
@@ -302,7 +326,7 @@ export default function EncodeDecodeView({
                     segments:
                       steps[steps.length - 1]?.tokens.map((id, idx) => ({
                         text: decodeBpeTokenString(
-                          vocab.get(id) || "?",
+                          tokenIdToString.get(id) || "?",
                           unicodeToByte
                         ),
                         tokens: [{ id, idx }],

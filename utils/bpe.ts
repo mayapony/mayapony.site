@@ -34,7 +34,6 @@ export function decodeBpeTokenString(
   tokenStr: string,
   byteDecoder: Map<string, number>
 ): string {
-  console.log({ tokenStr });
   const bytes: number[] = [];
 
   for (const ch of tokenStr) {

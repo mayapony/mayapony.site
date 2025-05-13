@@ -19,13 +19,13 @@ interface MergeStep {
   newTokenId: number;
   updatedSequences: number[][];
   pairStats: Map<string, number>;
+  mergePairsText: Array<[string, string]>;
 }
 
 type TrainViewProps = {
   onMergesReady?: (
-    vocabMap: Map<number, string>,
-    encoderMap: Map<string, number>,
-    mergePairs: Array<[number, number, number]>
+    vocab: Array<[string, string]>,
+    encoderMap: Map<string, number>
   ) => void;
 };
 
@@ -36,14 +36,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   const [stepIndex, setStepIndex] = useState(0);
   const [hoveredPair, setHoveredPair] = useState<string | null>(null);
 
-  const [vocabMap, setVocabMap] = useState<Map<number, string>>(new Map());
   const [encoderMap, setEncoderMap] = useState<Map<string, number>>(new Map());
+  const [vocab, setVocab] = useState<Array<[string, string]>>([]);
 
   const [initialEncoderEntries, setInitialEncoderEntries] = useState<
     [string, number][]
-  >([]);
-  const [initialVocabEntries, setInitialVocabEntries] = useState<
-    [number, string][]
   >([]);
 
   const byteEncoder = bytesToUnicode();
@@ -51,21 +48,24 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   for (const [b, c] of byteEncoder.entries()) {
     byteDecoder.set(c, b);
   }
+  const decoderMap = new Map<number, string>();
+  for (const [c, b] of encoderMap.entries()) {
+    decoderMap.set(b, c);
+  }
 
   const runBPETraining = () => {
     const byteEncoder = bytesToUnicode();
 
-    const vocab = new Map<number, string>();
+    const decoder = new Map<number, string>();
     const encoder = new Map<string, number>();
+    const mergePairsText: Array<[string, string]> = [];
 
     for (const [b, c] of byteEncoder.entries()) {
       encoder.set(c, b);
-      vocab.set(b, c);
+      decoder.set(b, c);
     }
 
     const newSteps: MergeStep[] = [];
-
-    const usedByteSet = new Set<number>(); // 只记录输入中用到的 byte
 
     const lines = inputText
       .split("\n")
@@ -76,7 +76,6 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
     for (const line of lines) {
       const lineBytes = Array.from(new TextEncoder().encode(line));
-      lineBytes.forEach((b) => usedByteSet.add(b));
 
       const lineIds: number[] = [];
 
@@ -85,8 +84,8 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
         const ch = byteEncoder.get(b)!;
 
         if (!encoder.has(ch)) {
-          encoder.set(ch, b); // 初始 ID = byte 值
-          vocab.set(b, ch);
+          encoder.set(ch, b);
+          decoder.set(b, ch);
         }
 
         lineIds.push(encoder.get(ch)!);
@@ -95,13 +94,10 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       sequences.push(lineIds);
     }
 
-    // 保存 Step 0 的 Encoder 和 Vocab 状态
     const initialEncoderEntries: [string, number][] = Array.from(
       encoder.entries()
     );
     setInitialEncoderEntries(initialEncoderEntries);
-    const initialVocabEntries: [number, string][] = Array.from(vocab.entries());
-    setInitialVocabEntries(initialVocabEntries);
 
     const initialStep: MergeStep = {
       step: 0,
@@ -110,10 +106,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       newTokenId: -1,
       updatedSequences: JSON.parse(JSON.stringify(sequences)),
       pairStats: getStats(sequences),
+      mergePairsText: [],
     };
     newSteps.push(initialStep);
 
-    let nextId = 256; // 新 token 的起始 ID
+    let nextId = 256;
 
     for (let step = 0; step < numMerges; step++) {
       const pairStats = getStats(sequences);
@@ -125,8 +122,10 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       );
       const [a, b] = bestPairKey.split("_").map(Number);
 
-      const mergedStr = vocab.get(a)! + vocab.get(b)!;
-      vocab.set(nextId, mergedStr);
+      const mergedStr = decoder.get(a)! + decoder.get(b)!;
+      mergePairsText.push([decoder.get(a)!, decoder.get(b)!]);
+
+      decoder.set(nextId, mergedStr);
       encoder.set(mergedStr, nextId);
 
       const newSeq = mergeSequences(sequences, [a, b], nextId);
@@ -138,6 +137,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
         newTokenId: nextId,
         updatedSequences: newSeq,
         pairStats: new Map(pairStats),
+        mergePairsText: [...mergePairsText],
       });
 
       sequences.length = 0;
@@ -147,17 +147,11 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
     setSteps(newSteps);
     setStepIndex(0);
-    setVocabMap(vocab);
     setEncoderMap(encoder);
+    setVocab(mergePairsText);
 
     if (onMergesReady) {
-      const mergePairs: Array<[number, number, number]> = [];
-      newSteps.forEach((step) => {
-        if (step.pair[0] !== -1 && step.pair[1] !== -1) {
-          mergePairs.push([step.pair[0], step.pair[1], step.newTokenId]);
-        }
-      });
-      onMergesReady(vocab, encoder, mergePairs);
+      onMergesReady(mergePairsText, encoder);
     }
   };
 
@@ -231,7 +225,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                         (next !== undefined &&
                           `${id}_${next}` === hoveredPairKey));
 
-                    const tokenStr = vocabMap.get(id) ?? "<?>";
+                    const tokenStr = decoderMap.get(id) ?? "<?>";
 
                     // 查找来源：此 token 是不是某一步的合并产物
                     const mergedFrom = steps
@@ -313,8 +307,8 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
               .sort((a, b) => b[1] - a[1])
               .map(([key, freq]) => {
                 const [a, b] = key.split("_").map(Number);
-                const tokenA = vocabMap.get(a) ?? "?";
-                const tokenB = vocabMap.get(b) ?? "?";
+                const tokenA = decoderMap.get(a) ?? "?";
+                const tokenB = decoderMap.get(b) ?? "?";
                 const preview = tokenA + tokenB;
                 const decoded = decodeBpeTokenString(preview, byteDecoder);
 
@@ -390,26 +384,20 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
             {/* Vocab */}
             <div className="max-h-[300px] w-1/3 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
-              <h4 className="mb-2 font-semibold text-green-700">Vocab 表</h4>
+              <h4 className="mb-2 font-semibold text-green-700">
+                Vocab 表（合并规则）
+              </h4>
               <div className="grid grid-cols-1 gap-2">
-                {steps
-                  .slice(1, stepIndex + 1) // 只展示当前之前执行的合并
-                  .sort((a, b) => b.frequency - a.frequency)
-                  .map((step) => (
-                    <div
-                      key={`merge-rule-${step.step}`}
-                      className="flex justify-between rounded border p-2 hover:bg-gray-50"
-                    >
-                      <span>
-                        <strong>{step.newTokenId}</strong> :{" "}
-                        {vocabMap.get(step.pair[0])} +{" "}
-                        {vocabMap.get(step.pair[1])}
-                        <div className="mt-1 text-xs text-gray-500">
-                          出现频率: {step.frequency}
-                        </div>
-                      </span>
-                    </div>
-                  ))}
+                {steps[stepIndex].mergePairsText.map(([left, right], idx) => (
+                  <div
+                    key={`merge-rule-${idx}`}
+                    className="flex justify-between rounded border p-2 hover:bg-gray-50"
+                  >
+                    <span>
+                      <code>{left}</code> + <code>{right}</code>
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
