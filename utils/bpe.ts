@@ -57,23 +57,28 @@ export const bytesToUnicode = (): Map<number, string> => {
   const bs: number[] = [];
   const cs: number[] = [];
 
-  for (let i = 33; i <= 126; ++i) bs.push(i);
-  for (let i = 161; i <= 172; ++i) bs.push(i);
-  for (let i = 174; i <= 255; ++i) bs.push(i);
+  // 和 Python 中 ord("!"), ord("~"), ord("¡"), ord("¬"), ord("®"), ord("ÿ") 一致
+  for (let i = 33; i <= 126; i++) bs.push(i); // "!" 到 "~"
+  for (let i = 161; i <= 172; i++) bs.push(i); // "¡" 到 "¬"
+  for (let i = 174; i <= 255; i++) bs.push(i); // "®" 到 "ÿ"
 
-  cs.push(...bs);
+  cs.push(...bs); // 先复制 bs
+
   let n = 0;
-  for (let b = 0; b < 256; ++b) {
+  for (let b = 0; b < 256; b++) {
     if (!bs.includes(b)) {
       bs.push(b);
-      cs.push(256 + n);
+      cs.push(256 + n); // Python 的 2**8 + n
       n++;
     }
   }
 
-  const map = new Map<number, string>();
-  bs.forEach((b, i) => map.set(b, String.fromCharCode(cs[i])));
-  return map;
+  const byteToUnicodeMap = new Map<number, string>();
+  for (let i = 0; i < bs.length; i++) {
+    byteToUnicodeMap.set(i, String.fromCharCode(cs[i]));
+  }
+
+  return byteToUnicodeMap;
 };
 
 export const mergeSequences = (
