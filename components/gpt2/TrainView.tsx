@@ -37,7 +37,6 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
   const [hoveredPair, setHoveredPair] = useState<string | null>(null);
 
   const [encoderMap, setEncoderMap] = useState<Map<string, number>>(new Map());
-  const [vocab, setVocab] = useState<Array<[string, string]>>([]);
 
   const [initialEncoderEntries, setInitialEncoderEntries] = useState<
     [string, number][]
@@ -148,7 +147,6 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     setSteps(newSteps);
     setStepIndex(0);
     setEncoderMap(encoder);
-    setVocab(mergePairsText);
 
     if (onMergesReady) {
       onMergesReady(mergePairsText, encoder);
