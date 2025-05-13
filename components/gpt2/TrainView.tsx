@@ -389,35 +389,24 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
             </div>
 
             {/* Vocab */}
-            <div className="max-h-[300px] w-1/2 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
+            <div className="max-h-[300px] w-1/3 overflow-y-auto rounded-md pr-2 scrollbar-thin scrollbar-track-ctp-base scrollbar-thumb-ctp-base hover:scrollbar-thumb-ctp-flamingo">
               <h4 className="mb-2 font-semibold text-green-700">Vocab 表</h4>
               <div className="grid grid-cols-1 gap-2">
-                {(stepIndex === 0
-                  ? initialVocabEntries
-                  : [...vocabMap.entries()].filter(([id]) => {
-                      const currentMaxId = steps
-                        .slice(0, stepIndex + 1)
-                        .map((s) => s.newTokenId)
-                        .filter((id) => id !== -1);
-                      return (
-                        initialVocabEntries.some(([origId]) => origId === id) ||
-                        (currentMaxId.length > 0 &&
-                          id <= Math.max(...currentMaxId))
-                      );
-                    })
-                )
-                  .sort(([aId], [bId]) => aId - bId)
-                  .map(([id, token]) => (
+                {steps
+                  .slice(1, stepIndex + 1) // 只展示当前之前执行的合并
+                  .sort((a, b) => b.frequency - a.frequency)
+                  .map((step) => (
                     <div
-                      key={`vocab-${id}`}
+                      key={`merge-rule-${step.step}`}
                       className="flex justify-between rounded border p-2 hover:bg-gray-50"
                     >
-                      <span className="text-gray-700">
-                        <strong>{id}</strong> →{" "}
-                        <code>{`${token} - (${decodeBpeTokenString(
-                          token,
-                          byteDecoder
-                        )})`}</code>
+                      <span>
+                        <strong>{step.newTokenId}</strong> :{" "}
+                        {vocabMap.get(step.pair[0])} +{" "}
+                        {vocabMap.get(step.pair[1])}
+                        <div className="mt-1 text-xs text-gray-500">
+                          出现频率: {step.frequency}
+                        </div>
                       </span>
                     </div>
                   ))}
