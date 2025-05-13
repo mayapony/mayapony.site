@@ -1,6 +1,6 @@
 "use client";
 
-import { TokenViewer } from "@/components/bpe/TokenViewer";
+import { TokenViewer } from "@/components/gpt2/TokenViewer";
 import { bytesToUnicode, tokenizeWithGpt2Pattern } from "@/utils/bpe";
 import { useState } from "react";
 

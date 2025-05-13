@@ -1,7 +1,7 @@
 "use client";
 
-import EncodeDecodeView from "@/components/bpe/EncodeDecodeView";
-import TrainView from "@/components/bpe/TrainView";
+import EncodeDecodeView from "@/components/gpt2/EncodeDecodeView";
+import TrainView from "@/components/gpt2/TrainView";
 import { useState } from "react";
 
 export default function BpePage() {
