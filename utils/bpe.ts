@@ -57,28 +57,60 @@ export const bytesToUnicode = (): Map<number, string> => {
   const bs: number[] = [];
   const cs: number[] = [];
 
-  // 和 Python 中 ord("!"), ord("~"), ord("¡"), ord("¬"), ord("®"), ord("ÿ") 一致
+  // 添加 ASCII 字符范围
   for (let i = 33; i <= 126; i++) bs.push(i); // "!" 到 "~"
   for (let i = 161; i <= 172; i++) bs.push(i); // "¡" 到 "¬"
   for (let i = 174; i <= 255; i++) bs.push(i); // "®" 到 "ÿ"
 
-  cs.push(...bs); // 先复制 bs
+  // 复制 bs 到 cs
+  cs.push(...bs);
 
   let n = 0;
   for (let b = 0; b < 256; b++) {
     if (!bs.includes(b)) {
       bs.push(b);
-      cs.push(256 + n); // Python 的 2**8 + n
+      cs.push(256 + n);
       n++;
     }
   }
 
-  const byteToUnicodeMap = new Map<number, string>();
+  // 构建字典：byte -> unicode_char
+  const byteToUnicodeMap: Map<number, string> = new Map();
   for (let i = 0; i < bs.length; i++) {
-    byteToUnicodeMap.set(i, String.fromCharCode(cs[i]));
+    byteToUnicodeMap.set(bs[i], String.fromCharCode(cs[i]));
   }
 
   return byteToUnicodeMap;
+};
+
+export const unicodeToBytes = (): Map<string, number> => {
+  const bs: number[] = [];
+  const cs: number[] = [];
+
+  // 添加 ASCII 字符范围
+  for (let i = 33; i <= 126; i++) bs.push(i); // "!" 到 "~"
+  for (let i = 161; i <= 172; i++) bs.push(i); // "¡" 到 "¬"
+  for (let i = 174; i <= 255; i++) bs.push(i); // "®" 到 "ÿ"
+
+  // 复制 bs 到 cs
+  cs.push(...bs);
+
+  let n = 0;
+  for (let b = 0; b < 256; b++) {
+    if (!bs.includes(b)) {
+      bs.push(b);
+      cs.push(256 + n);
+      n++;
+    }
+  }
+
+  // 构建字典：byte -> unicode_char
+  const unicodeToBytesMap: Map<string, number> = new Map();
+  for (let i = 0; i < bs.length; i++) {
+    unicodeToBytesMap.set(String.fromCharCode(cs[i]), bs[i]);
+  }
+
+  return unicodeToBytesMap;
 };
 
 export const mergeSequences = (

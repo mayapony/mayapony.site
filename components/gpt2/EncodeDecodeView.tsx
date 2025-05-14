@@ -6,6 +6,7 @@ import {
   bytesToUnicode,
   decodeBpeTokenString,
   tokenizeWithGpt2Pattern,
+  unicodeToBytes,
 } from "@/utils/bpe";
 import { useState } from "react";
 
@@ -59,11 +60,7 @@ export default function EncodeDecodeView({
   const [segmentsPreview, setSegmentsPreview] = useState<string[]>([]);
 
   const byteEncoder = bytesToUnicode();
-  const unicodeToByte = new Map<string, number>();
-  for (const [byte, char] of byteEncoder.entries()) {
-    unicodeToByte.set(char, byte);
-  }
-
+  const unicodeToByte = unicodeToBytes();
   const tokenIdToString = new Map<number, string>();
   for (const [str, id] of encoder.entries()) {
     tokenIdToString.set(id, str);

@@ -7,6 +7,7 @@ import {
   getColorForId,
   getStats,
   mergeSequences,
+  unicodeToBytes,
 } from "@/utils/bpe";
 import classNames from "classnames";
 import { motion } from "framer-motion";
@@ -42,24 +43,20 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
     [string, number][]
   >([]);
 
-  const byteEncoder = bytesToUnicode();
-  const byteDecoder = new Map<string, number>();
-  for (const [b, c] of byteEncoder.entries()) {
-    byteDecoder.set(c, b);
-  }
+  const bytesToUnicodeMap = bytesToUnicode();
+  const unicodeToBytesMap = unicodeToBytes();
+  console.log({ bytesToUnicodeMap, unicodeToBytesMap });
   const decoderMap = new Map<number, string>();
   for (const [c, b] of encoderMap.entries()) {
     decoderMap.set(b, c);
   }
 
   const runBPETraining = () => {
-    const byteEncoder = bytesToUnicode();
-
     const decoder = new Map<number, string>();
     const encoder = new Map<string, number>();
     const mergePairsText: Array<[string, string]> = [];
 
-    for (const [b, c] of byteEncoder.entries()) {
+    for (const [b, c] of bytesToUnicodeMap.entries()) {
       encoder.set(c, b);
       decoder.set(b, c);
     }
@@ -80,7 +77,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
 
       for (let i = 0; i < lineBytes.length; i++) {
         const b = lineBytes[i];
-        const ch = byteEncoder.get(b)!;
+        const ch = bytesToUnicodeMap.get(b)!;
 
         if (!encoder.has(ch)) {
           encoder.set(ch, b);
@@ -124,6 +121,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
       const mergedStr = decoder.get(a)! + decoder.get(b)!;
       mergePairsText.push([decoder.get(a)!, decoder.get(b)!]);
 
+      console.log({ mergedStr });
       decoder.set(nextId, mergedStr);
       encoder.set(mergedStr, nextId);
 
@@ -254,7 +252,10 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                           Token ID: {id}
                           <br />
                           解码结果:{" "}
-                          {`'${decodeBpeTokenString(tokenStr, byteDecoder)}'`}
+                          {`'${decodeBpeTokenString(
+                            tokenStr,
+                            unicodeToBytesMap
+                          )}'`}
                           {mergedFrom && (
                             <>
                               <br />
@@ -308,7 +309,10 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                 const tokenA = decoderMap.get(a) ?? "?";
                 const tokenB = decoderMap.get(b) ?? "?";
                 const preview = tokenA + tokenB;
-                const decoded = decodeBpeTokenString(preview, byteDecoder);
+                const decoded = decodeBpeTokenString(
+                  preview,
+                  unicodeToBytesMap
+                );
 
                 return (
                   <div
@@ -371,7 +375,7 @@ export default function TrainView({ onMergesReady }: TrainViewProps) {
                       <span className="text-gray-700">
                         <code>{`${token} - (${decodeBpeTokenString(
                           token,
-                          byteDecoder
+                          unicodeToBytesMap
                         )})`}</code>{" "}
                         → <strong>{id}</strong>
                       </span>
