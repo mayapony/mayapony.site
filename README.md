@@ -1,4 +1,4 @@
-[mayapony.site](https://mayapony.site)
+[mayapony.fun](https://mayapony.fun)
 
 ## Getting Started
 
